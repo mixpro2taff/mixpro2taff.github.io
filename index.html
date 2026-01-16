@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>PIXEL QUEST - Synchronized</title>
+    <style>
+        :root {
+            --bg-color: #08080c;
+            --card-bg: #111116;
+            --accent: #f1c40f;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+            user-select: none;
+        }
+
+        #start-menu {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 2000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        .stats-bar {
+            display: flex; justify-content: space-around; width: 950px;
+            border: 4px double #fff; padding: 15px; background: #000; margin-bottom: 20px;
+        }
+        .stat-item { text-align: center; flex: 1; }
+        .stat-label { font-size: 0.7em; color: #888; text-transform: uppercase; }
+        .stat-value { font-size: 1.2em; font-weight: bold; color: var(--accent); }
+
+        #game-screen {
+            width: 950px; height: 350px; background: #000; border: 2px solid #222;
+            padding: 20px; overflow-y: auto; box-sizing: border-box; margin-bottom: 20px;
+        }
+
+        #merchant-area {
+            display: none; width: 950px; background: #050505; border: 2px dashed var(--accent);
+            padding: 20px; box-sizing: border-box; text-align: center; margin-bottom: 20px;
+        }
+
+        .cards-container { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; }
+        
+        .item-card {
+            background: var(--card-bg);
+            border: 2px solid #333;
+            padding: 12px;
+            width: 180px;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            position: relative;
+            text-align: left;
+        }
+        .item-card:hover { transform: translateY(-5px); background: #000; }
+
+        .rarity-commun:hover { border-color: #95a5a6; box-shadow: 0 0 15px #95a5a6; }
+        .rarity-rare:hover { border-color: #3498db; box-shadow: 0 0 15px #3498db; }
+        .rarity-legendaire:hover { border-color: #f1c40f; box-shadow: 0 0 15px #f1c40f; }
+        .rarity-ultra:hover { border-color: #9b59b6; box-shadow: 0 0 15px #9b59b6; }
+        .rarity-intel:hover { border-color: #2ecc71; box-shadow: 0 0 15px #2ecc71; }
+        .rarity-cheat:hover { border-color: #e74c3c; box-shadow: 0 0 25px #e74c3c; }
+
+        .card-name { font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 10px; font-size: 0.9em; color: #fff; }
+        .card-stats { flex-grow: 1; font-size: 0.75em; line-height: 1.4; color: #bbb; }
+        .card-stats span { color: #2ecc71; }
+        .card-capa { color: #e67e22; font-style: italic; margin-top: 5px; font-size: 0.85em; }
+        .owned-tag { color: #2ecc71; font-weight: bold; font-size: 0.7em; margin-top: 5px; }
+
+        #codex-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.98); z-index: 1000;
+            padding: 40px; box-sizing: border-box; overflow-y: auto;
+        }
+        .possessed-card { border-color: #2ecc71 !important; box-shadow: inset 0 0 10px rgba(46, 204, 113, 0.2); }
+
+        .btn {
+            background: #000; color: #fff; border: 2px solid #fff;
+            padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: bold;
+        }
+        .btn:hover { background: #fff; color: #000; }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .codex-tab-btn { position: fixed; bottom: 20px; right: 20px; border-color: var(--accent); color: var(--accent); }
+
+        .log-entry { margin-bottom: 5px; border-left: 2px solid #333; padding-left: 10px; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+
+    <div id="start-menu">
+        <h1 style="color: var(--accent); font-size: 4em;">PIXEL QUEST</h1>
+        <p>SÉLECTIONNE TA DIFFICULTÉ</p>
+        <div style="margin-top: 20px;">
+            <button class="btn" onclick="startGame('facile')">FACILE (Or x1.5)</button>
+            <button class="btn" onclick="startGame('normal')" style="margin: 0 15px;">NORMAL</button>
+            <button class="btn" onclick="startGame('difficile')">DIFFICILE (Ennemis x1.5)</button>
+        </div>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-item"><div class="stat-label">Jour</div><div id="stat-jour" class="stat-value">1</div></div>
+        <div class="stat-item"><div class="stat-label">Santé</div><div id="stat-pv" class="stat-value" style="color:#ff4757">100</div></div>
+        <div class="stat-item"><div class="stat-label">Or</div><div id="stat-or" class="stat-value">40</div></div>
+        <div class="stat-item"><div class="stat-label">Attaque</div><div id="stat-att" class="stat-value">8</div></div>
+        <div class="stat-item"><div class="stat-label">Défense</div><div id="stat-def" class="stat-value">3.00</div></div>
+        <div class="stat-item"><div class="stat-label">Regen</div><div id="stat-regen" class="stat-value">20</div></div>
+        <div class="stat-item"><div class="stat-label">Intel</div><div id="stat-int" class="stat-value">0</div></div>
+    </div>
+
+    <div id="game-screen"></div>
+
+    <div id="merchant-area">
+        <h2 style="margin:0 0 15px 0;">🛒 MARCHAND</h2>
+        <div id="merchant-cards" class="cards-container"></div>
+        <button class="btn" onclick="finishDay()" style="margin-top: 15px; border-color: var(--accent);">Continuer</button>
+    </div>
+
+    <button id="btn-next" class="btn" onclick="playTurn()" style="width: 950px; font-size: 1.4em;">Lancer Jour 1</button>
+    <button class="btn codex-tab-btn" onclick="toggleCodex(true)">📖 CODEX</button>
+
+    <div id="codex-overlay">
+        <div style="display:flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); padding-bottom: 15px; margin-bottom: 20px;">
+            <h1 style="margin:0; color:var(--accent);">CODEX</h1>
+            <button class="btn" onclick="toggleCodex(false)">FERMER ✖</button>
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button class="btn" id="tab-objets" onclick="switchCodexTab('objets')" style="border-color: var(--accent); background: var(--accent); color: #000;">📦 OBJETS</button>
+            <button class="btn" id="tab-events" onclick="switchCodexTab('events')">🎲 EVENTS</button>
+        </div>
+        
+        <div id="codex-objets-content">
+            <h3 style="color:#2ecc71;">★ CAPACITÉS : <span id="my-capas-list" style="color:#fff; font-size: 0.8em;">Aucune</span></h3>
+            <hr style="border:0; border-top:1px solid #333; margin: 20px 0;">
+            <div id="codex-grid" class="cards-container"></div>
+        </div>
+        
+        <div id="codex-events-content" style="display: none;">
+            <div id="events-grid"></div>
+        </div>
+    </div>
+
+<script>
+// ======================
+// CONFIG & DATA
+// ======================
+const DEF_MIN = 0.2;
+let jour = 1;
+let diffSetting = { name: 'NORMAL', gold: 1, enemy: 1, boss: 1 };
+let joueur = { intelligence: 0, pv: 100, att: 8, def: 3, or: 40, regen: 20, capas: [] };
+
+const oCommuns = [
+    {nom: "Épée rouillée", att: 3, r:"commun"},
+    {nom: "Casque simple", pv: 8, r:"commun"},
+    {nom: "Anneau magique usé", def: -0.1, r:"commun"},
+    {nom: "Lance", att: 4, r:"commun"},
+    {nom: "Bâton magique", att: 2, regen: 1, r:"commun"},
+    {nom: "Buff commun", att: 2, pv: 5, regen: 1, def: -0.05, r:"commun"},
+    {nom: "Bouclier", def: -0.1, pv: 5, r:"commun"},
+    {nom: "Buff evo commun", att: 4, pv: 10, regen: 2, def: -0.1, r:"commun"}
+];
+
+const oRares = [
+    {nom: "Épée fine", att: 8, r:"rare"},
+    {nom: "Armure renforcée", def: -0.2, pv: 10, r:"rare"},
+    {nom: "Amulette vitale", pv: 20, r:"rare"},
+    {nom: "Anneau de pouvoir", pv: 10, att: 5, r:"rare"},
+    {nom: "Colt 1911", att: 10, r:"rare"},
+    {nom: "Buff rare", att: 4, pv: 10, def: -0.1, regen: 2, r:"rare"},
+    {nom: "M4", att: 18, r:"rare"},
+    {nom: "Buff evo rare", att: 8, pv: 20, def: -0.2, regen: 4, r:"rare"},
+    {nom: "Livre tactique", att: 8, intelligence: 5, r:"rare"}
+];
+
+const oLeg = [
+    {nom: "Lame mythique", att: 95, r:"legendaire"},
+    {nom: "Armure enchantée", pv: 70, def: -0.25, regen: 10, r:"legendaire"},
+    {nom: "Coeur du héros", pv: 50, capa: "vol_de_vie", r:"legendaire"},
+    {nom: "Carapace absolue", pv: 70, capa: "reduc_degats", r:"legendaire"},
+    {nom: "Lames frénétiques", att: 45, capa: "multi_attaque", r:"legendaire"},
+    {nom: "Buff legendaire", att: 30, pv: 50, def: -0.3, regen: 5, r:"legendaire"},
+    {nom: "Savoir continu", intelligence: 8, capa: "ia", r:"legendaire"}
+];
+
+const oUltra = [
+    {nom: "Bouclier invincible", pv: 120, def: -0.5, capa: "invincible_3tour", r:"ultra"},
+    {nom: "Gantelet de puissance", att: 90, capa: "crit_25", r:"ultra"},
+    {nom: "Tenu de camouflage ultime", pv: 80, def: -0.4, capa: "esquive_total", r:"ultra"},
+    {nom: "Buff ultime", pv: 125, def: -0.6, att: 50, regen: 15, r:"ultra"},
+    {nom: "Source du savoir", intelligence: 12, capa: "raisonnement", r:"ultra"},
+    {nom: "Negociant", capa: "investissement", r:"ultra"}
+];
+
+const oIntel = [
+    {nom: "Cerveau moisi", intelligence: 1, r:"intel"},
+    {nom: "Livre pas ouf", intelligence: 2, r:"intel"},
+    {nom: "Livre carré", intelligence: 5, r:"intel"},
+    {nom: "Grimoire qui date", intelligence: 3, r:"intel"},
+    {nom: "Livre du savoir", intelligence: 7, r:"intel"}
+];
+
+const oCheat = [
+    {nom: "(Mahe) Rat divin", capa: "loot+", r:"cheat"},
+    {nom: "Buff divin", pv: 300, att: 150, def: -1, regen: 30, r:"cheat"},
+    {nom: "Lumiere divine", att: 100, capa: "extermination", r:"cheat"},
+    {nom: "Miroir de l'âme", capa: "reflect_50", r:"cheat"}
+];
+
+const oMarchandExclusif = [
+    {nom: "Élixir ancestral", pv: 40, regen: 8, intelligence: 3, r:"rare"},
+    {nom: "Couronne du sage", intelligence: 15, def: -0.2, att: 10, r:"legendaire"},
+    {nom: "Cape d'invisibilité", def: -0.35, pv: 30, capa: "phase", r:"ultra"},
+    {nom: "Grimoire interdit", intelligence: 20, att: 35, pv: 25, r:"legendaire"},
+    {nom: "Anneau du phénix", pv: 35, regen: 12, r:"rare"},
+    {nom: "Lame du voyageur", att: 25, intelligence: 4, r:"rare"},
+    {nom: "Pierre philosophale", intelligence: 8, capa: "alchimie", r:"ultra"},
+    {nom: "Médaillon du destin", pv: 40, att: 20, def: -0.25, intelligence: 8, r:"legendaire"}
+];
+
+const ALL_ITEMS = [...oCommuns, ...oRares, ...oLeg, ...oUltra, ...oIntel, ...oCheat, ...oMarchandExclusif];
+
+const ennemisBase = {
+    voleur: {nom: "Voleur", pv: 60, att: 6, def: 2, or: 1},
+    guerrier: {nom: "Guerrier", pv: 100, att: 8, def: 1.8, or: 20},
+    champion: {nom: "Champion", pv: 200, att: 20, def: 1.5, or: 30},
+    assassin: {nom: "Assassin", pv: 80, att: 15, def: 2, or: 20},
+    mage: {nom: "Mage noir", pv: 100, att: 30, def: 1, or: 30},
+    berserker: {nom: "Berserker", pv: 120, att: 15, def: 1.5, or: 20},
+    paladin: {nom: "Paladin corrompu", pv: 250, att: 10, def: 0.6, or: 20},
+    necromancien: {nom: "Nécromancien", pv: 200, att: 20, def: 1, or: 30},
+    boss10: {nom: "Seigneur de fer", pv: 450, att: 25, def: 1, or: 30},
+    boss20: {nom: "Roi du Nord", pv: 2500, att: 80, def: 0.5, or: 40},
+    boss30: {nom: "Roi du monde", pv: 7000, att: 250, def: 0.3, or: 60},
+    boss40: {nom: "Prince solaire", pv: 12000, att: 550, def: 0.20, or: 80},
+    boss50: {nom: "Roi de la galaxie", pv: 20000, att: 750, def: 0.10, or: 90},
+    boss60: {nom: "Dictateur inter-galaxie", pv: 35000, att: 1200, def: 0.1, or: 100}
+};
+
+// ======================
+// HELPERS
+// ======================
+const randint = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+const choice = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+function enneミ_elite(e) {
+    return {
+        nom: "Élite " + e.nom,
+        pv: Math.floor(e.pv * 2),
+        att: Math.floor(e.att * 2),
+        def: Math.max(0.1, e.def / 2),
+        or: e.or
+    };
+}
+
+function ennemi_elite2(e) {
+    return {
+        nom: "SUPER " + e.nom,
+        pv: Math.floor(e.pv * 4),
+        att: Math.floor(e.att * 4),
+        def: Math.max(0.1, e.def / 2),
+        or: e.or
+    };
+}
+
+function ennemi_elite3(e) {
+    return {
+        nom: "ULTRA " + e.nom,
+        pv: Math.floor(e.pv * 6),
+        att: Math.floor(e.att * 6),
+        def: Math.max(0.1, e.def / 2),
+        or: e.or
+    };
+}
+
+// ======================
+// UI
+// ======================
+function startGame(mode) {
+    if(mode === 'facile') diffSetting = { name: 'FACILE', gold: 1.5, enemy: 1, boss: 1 };
+    if(mode === 'difficile') diffSetting = { name: 'DIFFICILE', gold: 1, enemy: 1.5, boss: 1.25 };
+    document.getElementById('start-menu').style.display = 'none';
+    log("⚙️ Difficulté : " + diffSetting.name, "#f1c40f");
+    updateUI();
+}
+
+function updateUI() {
+    document.getElementById('stat-jour').innerText = jour;
+    document.getElementById('stat-pv').innerText = Math.floor(joueur.pv);
+    document.getElementById('stat-or').innerText = Math.floor(joueur.or);
+    document.getElementById('stat-att').innerText = Math.floor(joueur.att);
+    document.getElementById('stat-def').innerText = joueur.def.toFixed(2);
+    document.getElementById('stat-regen').innerText = Math.floor(joueur.regen);
+    document.getElementById('stat-int').innerText = joueur.intelligence;
+    document.getElementById('btn-next').innerText = "Lancer Jour " + jour;
+}
+
+function log(msg, color = "#fff") {
+    const screen = document.getElementById('game-screen');
+    const div = document.createElement('div');
+    div.className = "log-entry";
+    div.style.color = color;
+    div.innerHTML = msg;
+    screen.appendChild(div);
+    screen.scrollTop = screen.scrollHeight;
+}
+
+// ======================
+// APPLIQUER OBJET
+// ======================
+function appliquer_objet(obj) {
+    log("✨ " + obj.nom, "#3498db");
+    for (let s in obj) {
+        if (["nom", "r"].includes(s)) continue;
+        if (s === "capa") { 
+            if(!joueur.capas.includes(obj[s])) {
+                joueur.capas.push(obj[s]);
+                log("  → Capacité : " + obj[s], "#e67e22");
+            }
+        } else { 
+            joueur[s] += obj[s]; 
+        }
+    }
+    joueur.def = Math.max(DEF_MIN, joueur.def);
+    
+    // Supprimer les objets légendaires, ultra et cheat après acquisition
+    if(obj.r === "legendaire") {
+        let idx = oLeg.indexOf(obj);
+        if(idx > -1) oLeg.splice(idx, 1);
+        idx = oMarchandExclusif.findIndex(o => o.nom === obj.nom);
+        if(idx > -1) oMarchandExclusif.splice(idx, 1);
+    }
+    if(obj.r === "ultra") {
+        let idx = oUltra.indexOf(obj);
+        if(idx > -1) oUltra.splice(idx, 1);
+        idx = oMarchandExclusif.findIndex(o => o.nom === obj.nom);
+        if(idx > -1) oMarchandExclusif.splice(idx, 1);
+    }
+    if(obj.r === "cheat") {
+        let idx = oCheat.indexOf(obj);
+        if(idx > -1) oCheat.splice(idx, 1);
+    }
+    
+    updateUI();
+}
+
+// ======================
+// LOOT & PROBAS
+// ======================
+function loot_du_jour() {
+    const probas = [
+        [oCommuns, 100], [oCommuns, 50], [oRares, 50],
+        [oLeg, 3], [oUltra, 1], [oIntel, 25], [oCheat, 0.2]
+    ];
+    probas.forEach(([pool, chance]) => {
+        if(randint(1, 100) <= chance && pool.length > 0) {
+            appliquer_objet(choice(pool));
+        }
+    });
+}
+
+// ======================
+// EVENTS
+// ======================
+function event_piege() {
+    log("⚠️ Piège détecté !");
+    if(joueur.intelligence >= jour) { 
+        log("Esquivé ! +10 or", "#2ecc71"); 
+        joueur.or += 10; 
+    } else { 
+        let d = jour*2; 
+        joueur.pv -= d; 
+        log("Tu perds " + d + " PV", "#e74c3c"); 
+    }
+}
+
+function event_piege_plus() {
+    log("⚠️⚠️ Piège dangereux !");
+    if(joueur.intelligence >= jour*2) { 
+        log("Esquivé ! +20 or", "#2ecc71"); 
+        joueur.or += 20; 
+    } else { 
+        let d = jour*4; 
+        joueur.pv -= d; 
+        log("Tu perds " + d + " PV", "#e74c3c"); 
+    }
+}
+
+function event_gain() {
+    log("💰 Or trouvé ! +10");
+    joueur.or += 10;
+}
+
+function event_gain_plus() {
+    log("💰💰 Or bonus ! +20");
+    joueur.or += 20;
+}
+
+function event_rencontre() {
+    log("😊 Rencontre paisible, +10 PV");
+    joueur.pv += 10;
+}
+
+function event_chemin() {
+    let c = parseInt(prompt("3 chemins : lequel prends-tu ? (1, 2 ou 3)"));
+    if(isNaN(c) || c < 1 || c > 3) c = 2;
+    let a = randint(1, 3);
+    if(a == c) { 
+        log("🎁 Un coffre !", "#f1c40f"); 
+        loot_du_jour(); 
+    } else if(a > c) { 
+        log("💰 Or trouvé ! +20"); 
+        joueur.or += 20; 
+    } else {
+        log("Rien...");
+    }
+}
+
+function event_coffre() {
+    log("📦 Un coffre !", "#f1c40f");
+    const probas = [
+        [oCommuns, 100], [oCommuns, 50], [oRares, 40],
+        [oLeg, 2], [oIntel, 20]
+    ];
+    probas.forEach(([pool, chance]) => {
+        if(randint(1, 100) <= chance && pool.length > 0) {
+            appliquer_objet(choice(pool));
+        }
+    });
+}
+
+function event_coffre_plus() {
+    log("📦✨ Un coffre rare !", "#9b59b6");
+    const probas = [
+        [oRares, 100], [oRares, 70], [oLeg, 8],
+        [oUltra, 3], [oIntel, 50], [oCheat, 0.5]
+    ];
+    probas.forEach(([pool, chance]) => {
+        if(randint(1, 100) <= chance && pool.length > 0) {
+            appliquer_objet(choice(pool));
+        }
+    });
+}
+
+function event_pari() {
+    if(randint(1, 2) === 1) { 
+        log("🎲 Pari risqué gagné ! +20 or", "#2ecc71"); 
+        joueur.or += 20; 
+    } else { 
+        log("🎲 Pari risqué perdu... -10 or", "#e74c3c"); 
+        joueur.or -= 10; 
+    }
+}
+
+function event_pari_plus() {
+    if(randint(1, 4) <= 3) { 
+        log("🎲✨ Pari chanceux ! +20 or", "#2ecc71"); 
+        joueur.or += 20; 
+    } else { 
+        log("🎲 Pari perdu... -10 or", "#e74c3c"); 
+        joueur.or -= 10; 
+    }
+}
+
+function jackpot() {
+    log("🏆 JACKPOT ! Trésor de fou +40 or", "#f1c40f");
+    joueur.or += 40;
+}
+
+// NOUVEAUX EVENTS
+function event_auberge() {
+    log("🏠 Une auberge apparaît !");
+    let choix = confirm("Payer 10 or pour restaurer 30 PV ? (Annuler = repos gratuit +10 PV)");
+    if(choix && joueur.or >= 10) {
+        joueur.or -= 10;
+        joueur.pv += 30;
+        log("Repos complet : +30 PV", "#2ecc71");
+    } else if(choix) {
+        log("Pas assez d'or !", "#e74c3c");
+    } else {
+        joueur.pv += 10;
+        log("Repos gratuit : +10 PV", "#95a5a6");
+    }
+}
+
+function event_bibliotheque() {
+    log("📚 Bibliothèque ancienne découverte !");
+    let choix = confirm("Étudier les grimoires ? (Coûte 15 PV pour +3 Intelligence)");
+    if(choix && joueur.pv > 15) {
+        joueur.pv -= 15;
+        joueur.intelligence += 3;
+        log("Connaissances acquises : +3 Intelligence", "#9b59b6");
+        updateUI();
+    } else if(choix) {
+        log("Pas assez de PV pour étudier...", "#e74c3c");
+    } else {
+        log("Tu passes ton chemin.");
+    }
+}
+
+function event_enigme() {
+    log("🧩 Un sage te pose une énigme...");
+    let reponse = parseInt(prompt("Énigme : Combien font 7 + (jour actuel × 2) - jour ? Réponds correctement !"));
+    let solution = 7 + (jour * 2) - jour;
+    
+    if(reponse === solution) {
+        log("✅ Bonne réponse ! Récompense : +20 or et +2 Intelligence", "#2ecc71");
+        joueur.or += 20;
+        joueur.intelligence += 2;
+        updateUI();
+    } else if(joueur.intelligence >= jour * 1.5) {
+        log("⚠️ Mauvaise réponse... mais ton Intelligence te sauve ! +10 or", "#f39c12");
+        joueur.or += 10;
+    } else {
+        log("❌ Mauvaise réponse... Le sage disparaît.", "#e74c3c");
+    }
+}
+
+function event_donjon() {
+    log("🏰 DONJON MYSTÉRIEUX découvert !");
+    let choix = confirm("Entrer dans le donjon ? (Combat difficile mais gros butin)");
+    if(!choix) {
+        log("Tu préfères éviter le danger.");
+        return;
+    }
+    
+    let ennemiDonjon = {
+        nom: "Gardien du donjon",
+        pv: 300 * diffSetting.enemy,
+        att: 50 * diffSetting.enemy,
+        def: 0.6,
+        or: 20 * diffSetting.gold
+    };
+    
+    if(combat(ennemiDonjon)) {
+        log("🎁 Récompenses du donjon !", "#f1c40f");
+        loot_du_jour();
+    }
+}
+
+function event_marchand_ambulant() {
+    log("🎪 Marchand ambulant rencontré !");
+    
+    const stock = [];
+    // Garantir au moins 1 objet exclusif
+    stock.push(choice(oMarchandExclusif));
+    
+    // Ajouter 2-3 objets normaux
+    for(let i = 0; i < randint(2, 3); i++) {
+        let pool = choice([oRares, oLeg, oIntel]);
+        if(pool.length > 0) stock.push(choice(pool));
+    }
+    
+    stock.forEach((obj, i) => {
+        let prix = 20;
+        if(obj.r === "legendaire") prix = 35;
+        if(obj.r === "ultra") prix = 50;
+        
+        let desc = `${i+1}. ${obj.nom} (${prix} or)`;
+        log(desc, "#3498db");
+    });
+    
+    let choix = prompt("Entrez le numéro de l'objet à acheter (ou 'n' pour passer) :");
+    if(choix && choix !== 'n') {
+        let idx = parseInt(choix) - 1;
+                    if(idx >= 0 && idx < stock.length) {
+            let obj = stock[idx];
+            let prix = 20;
+            if(obj.r === "legendaire") prix = 35;
+            if(obj.r === "ultra") prix = 50;
+            
+            if(joueur.or >= prix) {
+                joueur.or -= prix;
+                appliquer_objet(obj);
+            } else {
+                log("Pas assez d'or !", "#e74c3c");
+            }
+        }
+    }
+}
+
+// ======================
+// MARCHAND (fin de journée)
+// ======================
+function genererMarchand() {
+    const probas = [
+        [oCommuns, 100], 
+        [oCommuns, 70], 
+        [oRares, 40],
+        [oLeg, 4], 
+        [oUltra, 1.5], 
+        [oIntel, 50], 
+        [oCheat, 0.3]
+    ];
+    
+    let stock = [];
+    probas.forEach(([pool, chance]) => {
+        if(randint(1, 100) <= chance && pool.length > 0) {
+            stock.push(choice(pool));
+        }
+    });
+    
+    return stock;
+}
+
+// ======================
+// COMBAT
+// ======================
+function combat(eBase, isBoss = false) {
+    const m = isBoss ? diffSetting.boss : diffSetting.enemy;
+    let en = { 
+        nom: eBase.nom, 
+        pv: eBase.pv * m, 
+        att: eBase.att * m, 
+        def: eBase.def, 
+        or: eBase.or * diffSetting.gold 
+    };
+    
+    log("⚔️ COMBAT : " + en.nom, "#e74c3c");
+    let pvE = en.pv;
+    let inv = joueur.capas.includes("invincible_3tour") ? 3 : 0;
+
+    while(joueur.pv > 0 && pvE > 0) {
+        let atks = 1;
+        if(joueur.capas.includes("multi_attaque")) { 
+            while(randint(1, 3) === 1) atks++; 
+        }
+
+        for(let i=0; i<atks; i++) {
+            let d = joueur.att * en.def;
+            
+            if(joueur.intelligence > jour * 2.5) {
+                d *= (joueur.intelligence / jour * 2);
+            }
+            
+            if(joueur.capas.includes("raisonnement") && joueur.intelligence >= jour*1.5) {
+                d *= 2;
+            }
+            
+            if(joueur.capas.includes("extermination") && randint(1,2) === 1) {
+                pvE -= 250;
+            }
+            
+            if(joueur.capas.includes("crit_25") && randint(1, 4) === 1) {
+                d *= 5;
+            }
+            
+            pvE -= d;
+            
+            // Coeur du héros : 25% des dégâts nets infligés
+            if(joueur.capas.includes("vol_de_vie")) {
+                joueur.pv += (d * 0.25);
+            }
+            
+            if(pvE <= 0) break;
+        }
+
+        if(pvE > 0) {
+            let sub = en.att * joueur.def;
+            if(joueur.capas.includes("reduc_degats")) sub /= 2;
+            if(inv > 0) { sub = 0; inv--; }
+            
+            // Miroir de l'âme : renvoie 50% des dégâts nets reçus
+            if(joueur.capas.includes("reflect_50")) {
+                pvE -= (sub * 0.5);
+            }
+            
+            joueur.pv -= sub;
+        }
+    }
+
+    if(joueur.pv > 0) {
+        log("🏆 Victoire ! +" + Math.floor(en.or) + " or", "#2ecc71");
+        joueur.or += en.or; 
+        joueur.pv += joueur.regen;
+        return true;
+    }
+    
+    log("💀 DÉFAITE", "#ff0000");
+    const btn = document.getElementById('btn-next');
+    btn.innerText = "💀 RECOMMENCER";
+    btn.onclick = () => location.reload();
+    btn.disabled = false;
+    return false;
+}
+
+// ======================
+// EVENTS POSSIBLES
+// ======================
+function getEventsPossibles() {
+    let mag = ennemisBase.mage;
+    let ber = ennemisBase.berserker;
+    let pal = ennemisBase.paladin;
+    let necro = ennemisBase.necromancien;
+    let ass = ennemisBase.assassin;
+    let vol = ennemisBase.voleur;
+    let gue = ennemisBase.guerrier;
+    let cha = ennemisBase.champion;
+
+    if(jour >= 30) {
+        vol = ennemi_elite3(vol);
+        gue = ennemi_elite3(gue);
+        cha = ennemi_elite3(cha);
+        pal = enneミ_elite3(pal);
+        necro = enneミ_elite3(necro);
+        ass = enneミ_elite3(ass);
+        ber = enneミ_elite3(ber);
+        mag = enneミ_elite3(mag);
+    } else if(jour >= 20) {
+        vol = ennemi_elite2(vol);
+        gue = ennemi_elite2(gue);
+        cha = ennemi_elite2(cha);
+        pal = enneミ_elite2(pal);
+        necro = enneミ_elite2(necro);
+        ass = enneミ_elite2(ass);
+        ber = enneミ_elite2(ber);
+        mag = enneミ_elite2(mag);
+    } else if(jour >= 10) {
+        vol = enneミ_elite(vol);
+        gue = enneミ_elite(gue);
+        cha = enneミ_elite(cha);
+        pal = enneミ_elite(pal);
+        necro = enneミ_elite(necro);
+        ass = enneミ_elite(ass);
+        ber = enneミ_elite(ber);
+        mag = enneミ_elite(mag);
+    }
+
+    let events = [
+        () => combat(vol),
+        () => combat(vol),
+        () => combat(gue),
+        () => combat(vol),
+        () => combat(gue),
+        () => combat(gue),
+        event_gain,
+        event_gain,
+        event_gain_plus,
+        event_rencontre,
+        event_rencontre,
+        event_pari,
+        event_pari,
+        event_pari_plus,
+        event_piege_plus,
+        event_piege,
+        event_piege,
+        event_coffre,
+        event_coffre_plus,
+        event_chemin,
+        event_chemin,
+        jackpot,
+        event_donjon,
+        event_marchand_ambulant,
+        event_enigme,
+        event_bibliotheque,
+        event_enigme,
+        event_bibliotheque,
+        event_auberge,
+
+    ];
+
+    if(jour >= 5) {
+        events.push(() => combat(cha)),
+        () => combat(mag),
+        () => combat(pal),
+        () => combat(necro),
+        () => combat(ber),
+        () => combat(ass),
+        () => combat(ass),
+        () => combat(ber),
+        () => combat(pal)
+        events.push(() => combat(cha));
+    }
+
+    return events;
+}
+
+// ======================
+// MARCHAND
+// ======================
+function genererMarchand() {
+    const probas = [
+        [oCommuns, 100], [oCommuns, 70], [oRares, 40],
+        [oLeg, 4], [oUltra, 1.5], [oIntel, 50], [oCheat, 0.3]
+    ];
+    
+    let stock = [];
+    probas.forEach(([pool, chance]) => {
+        if(randint(1, 100) <= chance && pool.length > 0) {
+            stock.push(choice(pool));
+        }
+    });
+    
+    return stock;
+}
+
+// ======================
+// CYCLE DE JEU
+// ======================
+function playTurn() {
+    document.getElementById('btn-next').disabled = true;
+    log("━━━━━ JOUR " + jour + " ━━━━━", "#f1c40f");
+    
+    if(joueur.capas.includes("ia")) {
+        joueur.intelligence += 2;
+        log("🧠 IA active : +2 Intelligence");
+    }
+    
+    if(joueur.capas.includes("investissement") && randint(1,3) === 1) {
+        joueur.or += 30;
+        log("💼 Investissement : +30 or");
+    }
+    
+    if(joueur.capas.includes("alchimie") && randint(1,4) === 1) {
+        joueur.or += 25;
+        log("💎 Alchimie : +25 or");
+    }
+
+    loot_du_jour();
+    
+    if(joueur.capas.includes("loot+") && randint(1,4) <= 3) {
+        log("🎁 Loot+ activé !");
+        loot_du_jour();
+    }
+
+    if(joueur.pv <= 0) return;
+
+    // Boss days
+    if(jour === 10) {
+        if(!combat(ennemisBase.boss10, true)) return;
+    } else if(jour === 20) {
+        if(!combat(ennemisBase.boss20, true)) return;
+    } else if(jour === 30) {
+        if(!combat(ennemisBase.boss30, true)) return;
+    } else if(jour === 40) {
+        if(!combat(ennemisBase.boss40, true)) return;
+    } else if(jour === 50) {
+        if(!combat(ennemisBase.boss50, true)) return;
+    } else {
+        // Jours normaux : tirer un event aléatoire
+        const events = getEventsPossibles();
+        const selectedEvent = choice(events);
+        selectedEvent();
+    }
+
+    if(joueur.pv <= 0) return;
+
+    if(joueur.pv > 0) {
+        document.getElementById('merchant-area').style.display = 'block';
+        const mCards = document.getElementById('merchant-cards');
+        mCards.innerHTML = "";
+        
+        const stock = genererMarchand();
+        stock.forEach(it => {
+            mCards.appendChild(createCard(it, true));
+        });
+    }
+    
+    updateUI();
+}
+
+function finishDay() {
+    document.getElementById('merchant-area').style.display = 'none';
+    jour++; 
+    updateUI(); 
+    document.getElementById('btn-next').disabled = false;
+}
+
+// ======================
+// CARTE INTERFACE
+// ======================
+function createCard(obj, isMerchant = false) {
+    const card = document.createElement('div');
+    const isPossessed = obj.capa && joueur.capas.includes(obj.capa);
+    card.className = `item-card rarity-${obj.r} ${isPossessed ? 'possessed-card' : ''}`;
+    
+    let s = "";
+    if(obj.att) s += `⚔️ Atk: <span>+${obj.att}</span><br>`;
+    if(obj.pv) s += `❤️ PV: <span>+${obj.pv}</span><br>`;
+    if(obj.def) s += `🛡️ Def: <span>${obj.def}</span><br>`;
+    if(obj.intelligence) s += `🧠 Int: <span>+${obj.intelligence}</span><br>`;
+    if(obj.regen) s += `✨ Reg: <span>+${obj.regen}</span><br>`;
+
+    card.innerHTML = `
+        <div class="card-name">${obj.nom}</div>
+        <div class="card-stats">${s || '<em style="color:#666">Capacité spéciale</em>'}</div>
+        ${obj.capa ? `<div class="card-capa">★ ${obj.capa}</div>` : ''}
+        ${isPossessed ? `<div class="owned-tag">✓ ACQUIS</div>` : ''}
+        ${isMerchant ? `<div style="margin-top:10px; color:#f1c40f; font-weight:bold; font-size:0.8em">💰 20 OR</div>` : ''}
+    `;
+
+    if(isMerchant) {
+        card.style.cursor = 'pointer';
+        card.onclick = () => {
+            if(joueur.or >= 20) {
+                joueur.or -= 20; 
+                appliquer_objet(obj); 
+                card.style.opacity = "0.3"; 
+                card.style.cursor = "not-allowed";
+                card.onclick = null;
+            } else {
+                log("❌ Pas assez d'or !", "#e74c3c");
+            }
+        };
+    }
+    
+    return card;
+}
+
+function renderCodex() {
+    const grid = document.getElementById('codex-grid');
+    grid.innerHTML = "";
+    
+    const categories = [
+        {title: "COMMUNS", items: oCommuns, color: "#95a5a6"},
+        {title: "RARES", items: oRares, color: "#3498db"},
+        {title: "LÉGENDAIRES", items: oLeg, color: "#f1c40f"},
+        {title: "ULTRA", items: oUltra, color: "#9b59b6"},
+        {title: "INTELLIGENCE", items: oIntel, color: "#2ecc71"},
+        {title: "MARCHAND EXCLUSIF", items: oMarchandExclusif, color: "#e67e22"},
+        {title: "CHEAT", items: oCheat, color: "#e74c3c"}
+    ];
+    
+    categories.forEach(cat => {
+        const section = document.createElement('div');
+        section.style.width = '100%';
+        section.style.marginBottom = '30px';
+        section.innerHTML = `<h2 style="color:${cat.color}; border-bottom: 2px solid ${cat.color}; padding-bottom: 10px;">${cat.title}</h2>`;
+        
+        const cardsDiv = document.createElement('div');
+        cardsDiv.className = 'cards-container';
+        cardsDiv.style.marginTop = '15px';
+        
+        cat.items.forEach(item => {
+            cardsDiv.appendChild(createCard(item, false));
+        });
+        
+        section.appendChild(cardsDiv);
+        grid.appendChild(section);
+    });
+}
+
+function toggleCodex(show) {
+    const overlay = document.getElementById('codex-overlay');
+    if(show) {
+        document.getElementById('my-capas-list').innerText = 
+            joueur.capas.length > 0 ? joueur.capas.join(", ") : "Aucune";
+        switchCodexTab('objets');
+        overlay.style.display = 'block';
+    } else {
+        overlay.style.display = 'none';
+    }
+}
+
+function switchCodexTab(tab) {
+    const tabObjets = document.getElementById('tab-objets');
+    const tabEvents = document.getElementById('tab-events');
+    const contentObjets = document.getElementById('codex-objets-content');
+    const contentEvents = document.getElementById('codex-events-content');
+    
+    if(tab === 'objets') {
+        tabObjets.style.background = 'var(--accent)';
+        tabObjets.style.color = '#000';
+        tabObjets.style.borderColor = 'var(--accent)';
+        tabEvents.style.background = '#000';
+        tabEvents.style.color = '#fff';
+        tabEvents.style.borderColor = '#fff';
+        
+        contentObjets.style.display = 'block';
+        contentEvents.style.display = 'none';
+        renderCodex();
+    } else {
+        tabEvents.style.background = 'var(--accent)';
+        tabEvents.style.color = '#000';
+        tabEvents.style.borderColor = 'var(--accent)';
+        tabObjets.style.background = '#000';
+        tabObjets.style.color = '#fff';
+        tabObjets.style.borderColor = '#fff';
+        
+        contentObjets.style.display = 'none';
+        contentEvents.style.display = 'block';
+        renderEventsCodex();
+    }
+}
+
+function renderEventsCodex() {
+    const grid = document.getElementById('events-grid');
+    grid.innerHTML = "";
+    grid.style.display = 'flex';
+    grid.style.flexWrap = 'wrap';
+    grid.style.gap = '15px';
+    grid.style.justifyContent = 'flex-start';
+    
+    const eventsData = [
+        {
+            nom: "Voleur",
+            desc: "Ennemi rapide",
+            icon: "🗡️",
+            stats: "PV: 60 | Att: 6 | Def: 2",
+            proba: " Très Fréquent",
+            color: "#e74c3c"
+        },
+        {
+            nom: "Guerrier",
+            desc: "Équilibré",
+            icon: "⚔️",
+            stats: "PV: 100 | Att: 8 | Def: 1.8",
+            proba: "Très Fréquent",
+            color: "#e74c3c"
+        },
+        {
+            nom: "Assassin",
+            desc: "Frappe fort",
+            icon: "🔪",
+            stats: "PV: 80 | Att: 15 | Def: 2",
+            proba: "Fréquent",
+            color: "#e74c3c"
+        },
+        {
+            nom: "Mage noir",
+            desc: "Attaque magique",
+            icon: "🔮",
+            stats: "PV: 100 | Att: 30 | Def: 1",
+            proba: "J5+ Rare",
+            color: "#9b59b6"
+        },
+        {
+            nom: "Berserker",
+            desc: "Tank agressif",
+            icon: "🪓",
+            stats: "PV: 120 | Att: 15 | Def: 1.5",
+            proba: "J5+ Fréquent",
+            color: "#c0392b"
+        },
+        {
+            nom: "Nécromancien",
+            desc: "Magie noire",
+            icon: "💀",
+            stats: "PV: 200 | Att: 20 | Def: 1",
+            proba: "J5+ Rare",
+            color: "#8e44ad"
+        },
+        {
+            nom: "Paladin corrompu",
+            desc: "Défense élevée",
+            icon: "🛡️",
+            stats: "PV: 250 | Att: 10 | Def: 0.6",
+            proba: "J5+ Fréquent",
+            color: "#34495e"
+        },
+        {
+            nom: "Champion",
+            desc: "Fort (J5+)",
+            icon: "👑",
+            stats: "PV: 200 | Att: 20 | Def: 1.5",
+            proba: "J5+ Fréquent",
+            color: "#c0392b"
+        },
+        {
+            nom: "Boss J10",
+            desc: "Seigneur de fer",
+            icon: "👑",
+            stats: "PV: 450 | Att: 25",
+            proba: "J10",
+            color: "#8e44ad"
+        },
+        {
+            nom: "Boss J20",
+            desc: "Roi du Nord",
+            icon: "❄️",
+            stats: "PV: 2500 | Att: 80",
+            proba: "J20",
+            color: "#3498db"
+        },
+        {
+            nom: "Boss J30",
+            desc: "Roi du monde",
+            icon: "🌍",
+            stats: "PV: 7000 | Att: 250",
+            proba: "J30",
+            color: "#27ae60"
+        },
+        {
+            nom: "Boss J40",
+            desc: "Prince solaire",
+            icon: "☀️",
+            stats: "PV: 12000 | Att: 550",
+            proba: "J40",
+            color: "#f39c12"
+        },
+        {
+            nom: "Boss J50",
+            desc: "Roi galactique",
+            icon: "🌌",
+            stats: "PV: 20000 | Att: 750",
+            proba: "J50",
+            color: "#9b59b6"
+        },
+        {
+            nom: "Auberge",
+            desc: "Repos payant ou gratuit",
+            icon: "🏠",
+            stats: "10 or = +30 PV | Gratuit = +10 PV",
+            proba: "Courant",
+            color: "#2ecc71"
+        },
+        {
+            nom: "Bibliothèque",
+            desc: "Savoir contre santé",
+            icon: "📚",
+            stats: "-15 PV pour +3 Intelligence",
+            proba: "Courant",
+            color: "#9b59b6"
+        },
+        {
+            nom: "Énigme",
+            desc: "Test d'intelligence",
+            icon: "🧩",
+            stats: "Bonne réponse: +20 or +2 Int",
+            proba: "Courant",
+            color: "#3498db"
+        },
+        {
+            nom: "Donjon",
+            desc: "Combat dur, gros loot",
+            icon: "🏰",
+            stats: "Gardien (PV:300 Att:50) loot",
+            proba: "Rare",
+            color: "#8e44ad"
+        },
+        {
+            nom: "Marchand ambulant",
+            desc: "Objets exclusifs !",
+            icon: "🎪",
+            stats: "1 objet exclusif + objets rares",
+            proba: "Rare",
+            color: "#e67e22"
+        },
+        {
+            nom: "Piège",
+            desc: "Dégâts évitables",
+            icon: "⚠️",
+            stats: "Jour×2 dégâts | Int≥Jour: +10 or",
+            proba: "Courant",
+            color: "#e67e22"
+        },
+        {
+            nom: "Piège +",
+            desc: "Dangereux",
+            icon: "⚠️⚠️",
+            stats: "Jour×4 dégâts | Int≥Jour×2: +20 or",
+            proba: "Rare",
+            color: "#d35400"
+        },
+        {
+            nom: "Or",
+            desc: "Trouvaille",
+            icon: "💰",
+            stats: "+10 or",
+            proba: "Courant",
+            color: "#f1c40f"
+        },
+        {
+            nom: "Or bonus",
+            desc: "Belle trouvaille",
+            icon: "💰💰",
+            stats: "+20 or",
+            proba: "Courant",
+            color: "#f39c12"
+        },
+        {
+            nom: "Repos",
+            desc: "Rencontre paisible",
+            icon: "😊",
+            stats: "+10 PV",
+            proba: "Courant",
+            color: "#2ecc71"
+        },
+        {
+            nom: "3 chemins",
+            desc: "Choix stratégique",
+            icon: "🛤️",
+            stats: "Loot / +20 or / Rien",
+            proba: "Courant",
+            color: "#3498db"
+        },
+        {
+            nom: "Coffre",
+            desc: "Loot standard",
+            icon: "📦",
+            stats: "Commun/Rare/Légendaire",
+            proba: "Courant",
+            color: "#95a5a6"
+        },
+        {
+            nom: "Coffre rare",
+            desc: "Loot premium",
+            icon: "📦✨",
+            stats: "Rare/Légendaire/Ultra",
+            proba: "Rare",
+            color: "#9b59b6"
+        },
+        {
+            nom: "Pari",
+            desc: "50/50",
+            icon: "🎲",
+            stats: "+20 or / -10 or",
+            proba: "Courant",
+            color: "#e74c3c"
+        },
+        {
+            nom: "Pari +",
+            desc: "75% succès",
+            icon: "🎲✨",
+            stats: "75% +20 or / 25% -10 or",
+            proba: "rare",
+            color: "#c0392b"
+        },
+        {
+            nom: "JACKPOT",
+            desc: "Trésor légendaire",
+            icon: "🏆",
+            stats: "+40 or",
+            proba: "Rare",
+            color: "#f1c40f"
+        }
+    ];
+    
+    eventsData.forEach(ev => {
+        const card = document.createElement('div');
+        card.style.background = 'var(--card-bg)';
+        card.style.border = '2px solid #333';
+        card.style.padding = '10px';
+        card.style.width = '180px';
+        card.style.minHeight = '180px';
+        card.style.display = 'flex';
+        card.style.flexDirection = 'column';
+        card.style.transition = 'all 0.3s ease';
+        
+        card.innerHTML = `
+            <div style="font-size: 2em; text-align: center; margin-bottom: 8px;">${ev.icon}</div>
+            <div style="font-weight: bold; color: ${ev.color}; border-bottom: 1px solid #333; padding-bottom: 4px; margin-bottom: 8px; font-size: 0.85em;">
+                ${ev.nom}
+            </div>
+            <div style="font-size: 0.7em; color: #bbb; margin-bottom: 6px; line-height: 1.3;">
+                ${ev.desc}
+            </div>
+            <div style="font-size: 0.65em; color: #fff; background: rgba(255,255,255,0.05); padding: 6px; border-radius: 3px; margin-bottom: 6px; flex-grow: 1;">
+                ${ev.stats}
+            </div>
+            <div style="font-size: 0.6em; color: #f1c40f; font-style: italic;">
+                📊 ${ev.proba}
+            </div>
+        `;
+        
+        card.onmouseover = () => {
+            card.style.borderColor = ev.color;
+            card.style.boxShadow = `0 0 15px ${ev.color}`;
+            card.style.transform = 'translateY(-5px)';
+        };
+        card.onmouseout = () => {
+            card.style.borderColor = '#333';
+            card.style.boxShadow = 'none';
+            card.style.transform = 'translateY(0)';
+        };
+        
+        grid.appendChild(card);
+    });
+}
+</script>
+</body>
+</html>
