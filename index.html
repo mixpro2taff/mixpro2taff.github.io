@@ -236,6 +236,8 @@ const ennemisBase = {
     berserker: {nom: "Berserker", pv: 120, att: 15, def: 1.5, or: 20},
     paladin: {nom: "Paladin corrompu", pv: 250, att: 10, def: 0.6, or: 20},
     necromancien: {nom: "Nécromancien", pv: 200, att: 20, def: 1, or: 30},
+    dragon: {nom: "Dragon sauvage", pv: 400, att: 40, def: 1.2, or: 50},
+    titan: {nom: "Titan de pierre", pv: 500, att: 35, def: 0.8, or: 60},
     boss10: {nom: "Seigneur de fer", pv: 450, att: 25, def: 1, or: 30},
     boss20: {nom: "Roi du Nord", pv: 2500, att: 80, def: 0.5, or: 40},
     boss30: {nom: "Roi du monde", pv: 7000, att: 250, def: 0.3, or: 60},
@@ -250,7 +252,7 @@ const ennemisBase = {
 const randint = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const choice = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-function enneミ_elite(e) {
+function ennemi_elite(e) {
     return {
         nom: "Élite " + e.nom,
         pv: Math.floor(e.pv * 2),
@@ -285,6 +287,7 @@ function ennemi_elite3(e) {
 // ======================
 function startGame(mode) {
     if(mode === 'facile') diffSetting = { name: 'FACILE', gold: 1.5, enemy: 1, boss: 1 };
+    if(mode === 'normal') diffSetting = { name: 'NORMAL', gold: 1, enemy: 1, boss: 1 };
     if(mode === 'difficile') diffSetting = { name: 'DIFFICILE', gold: 1, enemy: 1.5, boss: 1.25 };
     document.getElementById('start-menu').style.display = 'none';
     log("⚙️ Difficulté : " + diffSetting.name, "#f1c40f");
@@ -316,21 +319,25 @@ function log(msg, color = "#fff") {
 // APPLIQUER OBJET
 // ======================
 function appliquer_objet(obj) {
-    log("✨ " + obj.nom, "#3498db");
+    log("✨ Objet acquis : " + obj.nom, "#3498db");
     for (let s in obj) {
         if (["nom", "r"].includes(s)) continue;
         if (s === "capa") { 
             if(!joueur.capas.includes(obj[s])) {
                 joueur.capas.push(obj[s]);
-                log("  → Capacité : " + obj[s], "#e67e22");
+                log("  → Capacité obtenue : " + obj[s], "#e67e22");
             }
         } else { 
-            joueur[s] += obj[s]; 
+            joueur[s] += obj[s];
+            if(s === "att") log("  → Attaque +" + obj[s], "#2ecc71");
+            if(s === "pv") log("  → PV +" + obj[s], "#2ecc71");
+            if(s === "def") log("  → Défense " + (obj[s] > 0 ? "+" : "") + obj[s], "#2ecc71");
+            if(s === "regen") log("  → Régénération +" + obj[s], "#2ecc71");
+            if(s === "intelligence") log("  → Intelligence +" + obj[s], "#2ecc71");
         }
     }
     joueur.def = Math.max(DEF_MIN, joueur.def);
     
-    // Supprimer les objets légendaires, ultra et cheat après acquisition
     if(obj.r === "legendaire") {
         let idx = oLeg.indexOf(obj);
         if(idx > -1) oLeg.splice(idx, 1);
@@ -370,61 +377,81 @@ function loot_du_jour() {
 // EVENTS
 // ======================
 function event_piege() {
-    log("⚠️ Piège détecté !");
+    log("⚠️ Tu avances dans un couloir sombre...");
+    log("Un déclic sous ton pied ! Un piège !");
     if(joueur.intelligence >= jour) { 
-        log("Esquivé ! +10 or", "#2ecc71"); 
+        log("→ Ton intelligence te permet de l'esquiver au dernier moment !", "#2ecc71");
+        log("→ Tu récupères même quelques pièces près du mécanisme : +10 or", "#f1c40f");
         joueur.or += 10; 
     } else { 
         let d = jour*2; 
-        joueur.pv -= d; 
-        log("Tu perds " + d + " PV", "#e74c3c"); 
+        joueur.pv -= d;
+        log("→ Le piège se déclenche ! Tu perds " + d + " PV", "#e74c3c"); 
     }
+    updateUI();
 }
 
 function event_piege_plus() {
-    log("⚠️⚠️ Piège dangereux !");
+    log("⚠️⚠️ Le sol s'effondre sous tes pieds !");
+    log("Un piège mortel se déclenche !");
     if(joueur.intelligence >= jour*2) { 
-        log("Esquivé ! +20 or", "#2ecc71"); 
+        log("→ Grâce à ton intelligence exceptionnelle, tu anticipes le danger !", "#2ecc71");
+        log("→ Tu explores la salle piégée et trouves : +20 or", "#f1c40f");
         joueur.or += 20; 
     } else { 
         let d = jour*4; 
-        joueur.pv -= d; 
-        log("Tu perds " + d + " PV", "#e74c3c"); 
+        joueur.pv -= d;
+        log("→ L'impact est brutal ! Tu perds " + d + " PV", "#e74c3c"); 
     }
+    updateUI();
 }
 
 function event_gain() {
-    log("💰 Or trouvé ! +10");
+    log("💰 En explorant les environs, tu découvres une bourse abandonnée !");
+    log("→ +10 or obtenus", "#f1c40f");
     joueur.or += 10;
+    updateUI();
 }
 
 function event_gain_plus() {
-    log("💰💰 Or bonus ! +20");
+    log("💰💰 Tu tombes sur un ancien campement de bandits...");
+    log("Leur trésor est encore là !");
+    log("→ +20 or obtenus", "#f1c40f");
     joueur.or += 20;
+    updateUI();
 }
 
 function event_rencontre() {
-    log("😊 Rencontre paisible, +10 PV");
+    log("😊 Tu croises un groupe de voyageurs pacifiques autour d'un feu de camp.");
+    log("Ils partagent leur nourriture avec toi.");
+    log("→ +10 PV récupérés", "#2ecc71");
     joueur.pv += 10;
+    updateUI();
 }
 
 function event_chemin() {
-    let c = parseInt(prompt("3 chemins : lequel prends-tu ? (1, 2 ou 3)"));
+    log("🛤️ Tu arrives à une intersection. Trois chemins s'offrent à toi...");
+    log("Le premier semble mener vers des ruines anciennes.");
+    log("Le second traverse une forêt dense.");
+    log("Le troisième longe une falaise escarpée.");
+    let c = parseInt(prompt("Quel chemin prends-tu ? (1, 2 ou 3)"));
     if(isNaN(c) || c < 1 || c > 3) c = 2;
     let a = randint(1, 3);
     if(a == c) { 
-        log("🎁 Un coffre !", "#f1c40f"); 
+        log("→ Excellent choix ! Tu découvres un coffre caché !", "#f1c40f"); 
         loot_du_jour(); 
     } else if(a > c) { 
-        log("💰 Or trouvé ! +20"); 
+        log("→ Tu trouves une cache de brigands avec de l'or : +20 or", "#f1c40f"); 
         joueur.or += 20; 
     } else {
-        log("Rien...");
+        log("→ Le chemin était vide... Tu continues ton voyage.", "#95a5a6");
     }
+    updateUI();
 }
 
 function event_coffre() {
-    log("📦 Un coffre !", "#f1c40f");
+    log("📦 En fouillant les buissons, tu aperçois quelque chose qui brille...");
+    log("Un coffre apparaît !");
     const probas = [
         [oCommuns, 100], [oCommuns, 50], [oRares, 40],
         [oLeg, 2], [oIntel, 20]
@@ -437,7 +464,9 @@ function event_coffre() {
 }
 
 function event_coffre_plus() {
-    log("📦✨ Un coffre rare !", "#9b59b6");
+    log("📦✨ Un éclat magique attire ton attention au loin...");
+    log("En t'approchant, tu découvres un coffre orné de runes mystiques !");
+    log("C'est un coffre rare !");
     const probas = [
         [oRares, 100], [oRares, 70], [oLeg, 8],
         [oUltra, 3], [oIntel, 50], [oCheat, 0.5]
@@ -450,140 +479,170 @@ function event_coffre_plus() {
 }
 
 function event_pari() {
+    log("🎲 Tu tombes sur un groupe de voyageurs jouant à des jeux d'argent.");
+    log("L'ambiance est tendue. L'un d'eux te lance un défi...");
+    log("Tu décides de participer à une partie !");
     if(randint(1, 2) === 1) { 
-        log("🎲 Pari risqué gagné ! +20 or", "#2ecc71"); 
+        log("→ Les dés roulent en ta faveur ! Tu remportes la mise !", "#2ecc71");
+        log("→ +20 or gagnés", "#f1c40f"); 
         joueur.or += 20; 
     } else { 
-        log("🎲 Pari risqué perdu... -10 or", "#e74c3c"); 
+        log("→ Malchance... Tu perds ta mise.", "#e74c3c");
+        log("→ -10 or perdus", "#e74c3c"); 
         joueur.or -= 10; 
     }
+    updateUI();
 }
 
 function event_pari_plus() {
+    log("🎲✨ Un mystérieux joueur encapuchonné t'invite à une partie spéciale...");
+    log("Les règles semblent être en ta faveur, mais le risque demeure.");
+    log("Tu acceptes le défi !");
     if(randint(1, 4) <= 3) { 
-        log("🎲✨ Pari chanceux ! +20 or", "#2ecc71"); 
+        log("→ Victoire ! Le joueur reconnaît ta chance et te récompense !", "#2ecc71");
+        log("→ +20 or gagnés", "#f1c40f"); 
         joueur.or += 20; 
     } else { 
-        log("🎲 Pari perdu... -10 or", "#e74c3c"); 
+        log("→ Contre toute attente, tu perds la partie...", "#e74c3c");
+        log("→ -10 or perdus", "#e74c3c"); 
         joueur.or -= 10; 
     }
+    updateUI();
 }
 
 function jackpot() {
-    log("🏆 JACKPOT ! Trésor de fou +40 or", "#f1c40f");
+    log("🏆 En explorant une grotte abandonnée, tu tombes sur une salle cachée...");
+    log("Un TRÉSOR LÉGENDAIRE s'y trouve !");
+    log("Des pièces d'or partout, des gemmes précieuses...");
+    log("→ JACKPOT ! +40 or obtenus !", "#f1c40f");
     joueur.or += 40;
+    updateUI();
 }
 
-// NOUVEAUX EVENTS
 function event_auberge() {
-    log("🏠 Une auberge apparaît !");
-    let choix = confirm("Payer 10 or pour restaurer 30 PV ? (Annuler = repos gratuit +10 PV)");
+    log("🏠 Après des heures de marche, tu aperçois une auberge accueillante.");
+    log("L'odeur de nourriture chaude t'attire. L'aubergiste te propose ses services.");
+    let choix = confirm("Payer 10 or pour un repos complet (+30 PV) ?\n(Annuler = repos simple gratuit +10 PV)");
     if(choix && joueur.or >= 10) {
         joueur.or -= 10;
         joueur.pv += 30;
-        log("Repos complet : +30 PV", "#2ecc71");
+        log("→ Tu paies pour une chambre confortable et un festin.", "#2ecc71");
+        log("→ -10 or dépensés", "#e74c3c");
+        log("→ +30 PV récupérés", "#2ecc71");
     } else if(choix) {
-        log("Pas assez d'or !", "#e74c3c");
+        log("→ Tu n'as pas assez d'or pour le repos complet...", "#e74c3c");
     } else {
         joueur.pv += 10;
-        log("Repos gratuit : +10 PV", "#95a5a6");
+        log("→ Tu dors dans l'écurie. Ce n'est pas luxueux mais ça repose.", "#95a5a6");
+        log("→ +10 PV récupérés", "#2ecc71");
     }
+    updateUI();
 }
 
 function event_bibliotheque() {
-    log("📚 Bibliothèque ancienne découverte !");
+    log("📚 Tu découvres une bibliothèque ancienne remplie de grimoires poussiéreux.");
+    log("Les connaissances contenues ici sont immenses, mais déchiffrer ces textes");
+    log("anciens demande une concentration intense qui épuise le corps...");
     let choix = confirm("Étudier les grimoires ? (Coûte 15 PV pour +3 Intelligence)");
     if(choix && joueur.pv > 15) {
         joueur.pv -= 15;
         joueur.intelligence += 3;
-        log("Connaissances acquises : +3 Intelligence", "#9b59b6");
+        log("→ Tu passes des heures à déchiffrer les textes anciens.", "#9b59b6");
+        log("→ -15 PV (fatigue mentale)", "#e74c3c");
+        log("→ +3 Intelligence obtenus", "#2ecc71");
         updateUI();
     } else if(choix) {
-        log("Pas assez de PV pour étudier...", "#e74c3c");
+        log("→ Tu es trop affaibli pour étudier en sécurité...", "#e74c3c");
     } else {
-        log("Tu passes ton chemin.");
+        log("→ Tu préfères garder tes forces. Sage décision.", "#95a5a6");
     }
 }
 
 function event_enigme() {
-    log("🧩 Un sage te pose une énigme...");
-    let reponse = parseInt(prompt("Énigme : Combien font 7 + (jour actuel × 2) - jour ? Réponds correctement !"));
+    log("🧩 Un sage mystérieux bloque ton chemin.");
+    log("'Résous mon énigme et je te récompenserai', dit-il avec un sourire.");
+    let reponse = parseInt(prompt("Énigme : Combien font 7 + (jour actuel × 2) - jour ?\n(Le jour actuel est : " + jour + ")"));
     let solution = 7 + (jour * 2) - jour;
     
     if(reponse === solution) {
-        log("✅ Bonne réponse ! Récompense : +20 or et +2 Intelligence", "#2ecc71");
+        log("→ 'Excellent !' s'exclame le sage. 'Voici ta récompense !'", "#2ecc71");
+        log("→ +20 or obtenus", "#f1c40f");
+        log("→ +2 Intelligence (apprentissage)", "#9b59b6");
         joueur.or += 20;
         joueur.intelligence += 2;
         updateUI();
     } else if(joueur.intelligence >= jour * 1.5) {
-        log("⚠️ Mauvaise réponse... mais ton Intelligence te sauve ! +10 or", "#f39c12");
+        log("→ Ta réponse est fausse, mais le sage est impressionné par ton intelligence.", "#f39c12");
+        log("→ Il te donne une petite récompense : +10 or", "#f1c40f");
         joueur.or += 10;
+        updateUI();
     } else {
-        log("❌ Mauvaise réponse... Le sage disparaît.", "#e74c3c");
+        log("→ 'Dommage...' Le sage disparaît dans un nuage de fumée.", "#e74c3c");
+        log("(La réponse était : " + solution + ")");
     }
 }
 
 function event_donjon() {
-    log("🏰 DONJON MYSTÉRIEUX découvert !");
-    let choix = confirm("Entrer dans le donjon ? (Combat difficile mais gros butin)");
+    log("🏰 Tu découvres l'entrée d'un donjon mystérieux...");
+    log("Des bruits inquiétants résonnent depuis les profondeurs.");
+    log("Un combat difficile t'attend, mais le trésor pourrait être immense !");
+    let choix = confirm("Entrer dans le donjon ?");
     if(!choix) {
-        log("Tu préfères éviter le danger.");
+        log("→ Tu préfères éviter le danger. Parfois, la sagesse vaut mieux que la bravoure.", "#95a5a6");
         return;
     }
     
+    let mult = diffSetting.enemy;
+    if(jour >= 30) mult *= 6;
+    else if(jour >= 20) mult *= 4;
+    else if(jour >= 10) mult *= 2;
+    
     let ennemiDonjon = {
-        nom: "Gardien du donjon",
-        pv: 300 * diffSetting.enemy,
-        att: 50 * diffSetting.enemy,
-        def: 0.6,
+        nom: jour >= 30 ? "ULTRA Gardien du donjon" : jour >= 20 ? "SUPER Gardien du donjon" : jour >= 10 ? "Élite Gardien du donjon" : "Gardien du donjon",
+        pv: 300 * mult,
+        att: 50 * mult,
+        def: Math.max(0.1, 0.6 / (jour >= 10 ? 2 : 1)),
         or: 20 * diffSetting.gold
     };
     
+    log("→ Tu descends dans les profondeurs...");
     if(combat(ennemiDonjon)) {
-        log("🎁 Récompenses du donjon !", "#f1c40f");
+        log("🎁 Le donjon révèle ses trésors !", "#f1c40f");
         loot_du_jour();
     }
 }
 
 function event_marchand_ambulant() {
-    log("🎪 Marchand ambulant rencontré !");
+    log("🎪 En traversant un village, tu aperçois un marchand ambulant excentrique !");
+    log("Sa carriole déborde d'objets étranges et de reliques mystérieuses.");
+    log("'Ah, un aventurier ! J'ai exactement ce qu'il te faut !' dit-il avec un sourire.");
     
+    const allItems = [...oMarchandExclusif, ...oRares, ...oLeg, ...oIntel];
     const stock = [];
-    // Garantir au moins 1 objet exclusif
-    stock.push(choice(oMarchandExclusif));
     
-    // Ajouter 2-3 objets normaux
-    for(let i = 0; i < randint(2, 3); i++) {
-        let pool = choice([oRares, oLeg, oIntel]);
-        if(pool.length > 0) stock.push(choice(pool));
+    // Premier objet garanti
+    if(allItems.length > 0) {
+        stock.push(choice(allItems));
     }
     
-    stock.forEach((obj, i) => {
-        let prix = 20;
-        if(obj.r === "legendaire") prix = 35;
-        if(obj.r === "ultra") prix = 50;
-        
-        let desc = `${i+1}. ${obj.nom} (${prix} or)`;
-        log(desc, "#3498db");
+    // 40% de chance d'avoir un 2ème objet
+    if(randint(1, 100) <= 40 && allItems.length > 0) {
+        stock.push(choice(allItems));
+    }
+    
+    // 1% de chance d'avoir un 3ème objet
+    if(randint(1, 100) <= 1 && allItems.length > 0) {
+        stock.push(choice(allItems));
+        log("→ Le marchand est de très bonne humeur aujourd'hui !", "#f1c40f");
+    }
+    
+    log("→ Le marchand te DONNE généreusement " + stock.length + " objet" + (stock.length > 1 ? "s" : "") + " !", "#2ecc71");
+    
+    stock.forEach(obj => {
+        appliquer_objet(obj);
     });
     
-    let choix = prompt("Entrez le numéro de l'objet à acheter (ou 'n' pour passer) :");
-    if(choix && choix !== 'n') {
-        let idx = parseInt(choix) - 1;
-                    if(idx >= 0 && idx < stock.length) {
-            let obj = stock[idx];
-            let prix = 20;
-            if(obj.r === "legendaire") prix = 35;
-            if(obj.r === "ultra") prix = 50;
-            
-            if(joueur.or >= prix) {
-                joueur.or -= prix;
-                appliquer_objet(obj);
-            } else {
-                log("Pas assez d'or !", "#e74c3c");
-            }
-        }
-    }
+    updateUI();
 }
 
 // ======================
@@ -628,6 +687,22 @@ function combat(eBase, isBoss = false) {
     let inv = joueur.capas.includes("invincible_3tour") ? 3 : 0;
 
     while(joueur.pv > 0 && pvE > 0) {
+        // L'ennemi attaque en PREMIER
+        if(pvE > 0) {
+            let sub = en.att * joueur.def;
+            if(joueur.capas.includes("reduc_degats")) sub /= 2;
+            if(inv > 0) { sub = 0; inv--; }
+            
+            if(joueur.capas.includes("reflect_50")) {
+                pvE -= (sub * 0.5);
+            }
+            
+            joueur.pv -= sub;
+        }
+        
+        if(joueur.pv <= 0) break;
+        
+        // Puis le joueur attaque
         let atks = 1;
         if(joueur.capas.includes("multi_attaque")) { 
             while(randint(1, 3) === 1) atks++; 
@@ -654,36 +729,25 @@ function combat(eBase, isBoss = false) {
             
             pvE -= d;
             
-            // Coeur du héros : 25% des dégâts nets infligés
             if(joueur.capas.includes("vol_de_vie")) {
                 joueur.pv += (d * 0.25);
             }
             
             if(pvE <= 0) break;
         }
-
-        if(pvE > 0) {
-            let sub = en.att * joueur.def;
-            if(joueur.capas.includes("reduc_degats")) sub /= 2;
-            if(inv > 0) { sub = 0; inv--; }
-            
-            // Miroir de l'âme : renvoie 50% des dégâts nets reçus
-            if(joueur.capas.includes("reflect_50")) {
-                pvE -= (sub * 0.5);
-            }
-            
-            joueur.pv -= sub;
-        }
     }
 
     if(joueur.pv > 0) {
-        log("🏆 Victoire ! +" + Math.floor(en.or) + " or", "#2ecc71");
+        log("🏆 Victoire !", "#2ecc71");
+        log("→ +" + Math.floor(en.or) + " or récupérés", "#f1c40f");
+        log("→ +" + Math.floor(joueur.regen) + " PV régénérés", "#2ecc71");
         joueur.or += en.or; 
         joueur.pv += joueur.regen;
+        updateUI();
         return true;
     }
     
-    log("💀 DÉFAITE", "#ff0000");
+    log("💀 DÉFAITE - Tu es tombé au combat...", "#ff0000");
     const btn = document.getElementById('btn-next');
     btn.innerText = "💀 RECOMMENCER";
     btn.onclick = () => location.reload();
@@ -694,6 +758,16 @@ function combat(eBase, isBoss = false) {
 // ======================
 // EVENTS POSSIBLES
 // ======================
+function ennemi_boss(e) {
+    return {
+        nom: "Boss " + e.nom,
+        pv: Math.floor(e.pv * 8),
+        att: Math.floor(e.att * 8),
+        def: Math.max(0.1, e.def / 2.5),
+        or: Math.floor(e.or * 1.5)
+    };
+}
+
 function getEventsPossibles() {
     let mag = ennemisBase.mage;
     let ber = ennemisBase.berserker;
@@ -703,34 +777,51 @@ function getEventsPossibles() {
     let vol = ennemisBase.voleur;
     let gue = ennemisBase.guerrier;
     let cha = ennemisBase.champion;
+    let drag = ennemisBase.dragon;
+    let tit = ennemisBase.titan;
 
-    if(jour >= 30) {
+    if(jour >= 40) {
+        vol = ennemi_boss(vol);
+        gue = ennemi_boss(gue);
+        cha = ennemi_boss(cha);
+        pal = ennemi_boss(pal);
+        necro = ennemi_boss(necro);
+        ass = ennemi_boss(ass);
+        ber = ennemi_boss(ber);
+        mag = ennemi_boss(mag);
+        drag = ennemi_boss(drag);
+        tit = ennemi_boss(tit);
+    } else if(jour >= 30) {
         vol = ennemi_elite3(vol);
         gue = ennemi_elite3(gue);
         cha = ennemi_elite3(cha);
-        pal = enneミ_elite3(pal);
-        necro = enneミ_elite3(necro);
-        ass = enneミ_elite3(ass);
-        ber = enneミ_elite3(ber);
-        mag = enneミ_elite3(mag);
+        pal = ennemi_elite3(pal);
+        necro = ennemi_elite3(necro);
+        ass = ennemi_elite3(ass);
+        ber = ennemi_elite3(ber);
+        mag = ennemi_elite3(mag);
+        drag = ennemi_elite3(drag);
+        tit = ennemi_elite3(tit);
     } else if(jour >= 20) {
         vol = ennemi_elite2(vol);
         gue = ennemi_elite2(gue);
         cha = ennemi_elite2(cha);
-        pal = enneミ_elite2(pal);
-        necro = enneミ_elite2(necro);
-        ass = enneミ_elite2(ass);
-        ber = enneミ_elite2(ber);
-        mag = enneミ_elite2(mag);
+        pal = ennemi_elite2(pal);
+        necro = ennemi_elite2(necro);
+        ass = ennemi_elite2(ass);
+        ber = ennemi_elite2(ber);
+        mag = ennemi_elite2(mag);
+        drag = ennemi_elite2(drag);
+        tit = ennemi_elite2(tit);
     } else if(jour >= 10) {
-        vol = enneミ_elite(vol);
-        gue = enneミ_elite(gue);
-        cha = enneミ_elite(cha);
-        pal = enneミ_elite(pal);
-        necro = enneミ_elite(necro);
-        ass = enneミ_elite(ass);
-        ber = enneミ_elite(ber);
-        mag = enneミ_elite(mag);
+        vol = ennemi_elite(vol);
+        gue = ennemi_elite(gue);
+        cha = ennemi_elite(cha);
+        pal = ennemi_elite(pal);
+        necro = ennemi_elite(necro);
+        ass = ennemi_elite(ass);
+        ber = ennemi_elite(ber);
+        mag = ennemi_elite(mag);
     }
 
     let events = [
@@ -763,42 +854,29 @@ function getEventsPossibles() {
         event_enigme,
         event_bibliotheque,
         event_auberge,
-
     ];
 
     if(jour >= 5) {
-        events.push(() => combat(cha)),
-        () => combat(mag),
-        () => combat(pal),
-        () => combat(necro),
-        () => combat(ber),
-        () => combat(ass),
-        () => combat(ass),
-        () => combat(ber),
-        () => combat(pal)
-        events.push(() => combat(cha));
+        events.push(
+            () => combat(cha),
+            () => combat(mag),
+            () => combat(pal),
+            () => combat(necro),
+            () => combat(ber),
+            () => combat(ass),
+            () => combat(ass),
+            () => combat(ber),
+            () => combat(pal),
+            () => combat(cha)
+        );
+    }
+
+    if(jour >= 10) {
+        events.push(() => combat(drag));
+        events.push(() => combat(tit));
     }
 
     return events;
-}
-
-// ======================
-// MARCHAND
-// ======================
-function genererMarchand() {
-    const probas = [
-        [oCommuns, 100], [oCommuns, 70], [oRares, 40],
-        [oLeg, 4], [oUltra, 1.5], [oIntel, 50], [oCheat, 0.3]
-    ];
-    
-    let stock = [];
-    probas.forEach(([pool, chance]) => {
-        if(randint(1, 100) <= chance && pool.length > 0) {
-            stock.push(choice(pool));
-        }
-    });
-    
-    return stock;
 }
 
 // ======================
@@ -810,41 +888,60 @@ function playTurn() {
     
     if(joueur.capas.includes("ia")) {
         joueur.intelligence += 2;
-        log("🧠 IA active : +2 Intelligence");
+        log("🧠 Capacité IA active : +2 Intelligence", "#9b59b6");
     }
     
     if(joueur.capas.includes("investissement") && randint(1,3) === 1) {
         joueur.or += 30;
-        log("💼 Investissement : +30 or");
+        log("💼 Capacité Investissement : +30 or", "#f1c40f");
     }
     
     if(joueur.capas.includes("alchimie") && randint(1,4) === 1) {
         joueur.or += 25;
-        log("💎 Alchimie : +25 or");
+        log("💎 Capacité Alchimie : +25 or", "#f1c40f");
     }
 
     loot_du_jour();
     
     if(joueur.capas.includes("loot+") && randint(1,4) <= 3) {
-        log("🎁 Loot+ activé !");
+        log("🎁 Capacité Loot+ activée !", "#e67e22");
         loot_du_jour();
     }
 
     if(joueur.pv <= 0) return;
 
-    // Boss days
     if(jour === 10) {
+        log("🚨 BOSS APPARAÎT : Seigneur de fer !", "#8e44ad");
         if(!combat(ennemisBase.boss10, true)) return;
     } else if(jour === 20) {
+        log("🚨 BOSS APPARAÎT : Roi du Nord !", "#3498db");
         if(!combat(ennemisBase.boss20, true)) return;
     } else if(jour === 30) {
+        log("🚨 BOSS APPARAÎT : Roi du monde !", "#27ae60");
         if(!combat(ennemisBase.boss30, true)) return;
     } else if(jour === 40) {
+        log("🚨 BOSS APPARAÎT : Prince solaire !", "#f39c12");
         if(!combat(ennemisBase.boss40, true)) return;
     } else if(jour === 50) {
+        log("🚨 BOSS APPARAÎT : Roi de la galaxie !", "#9b59b6");
         if(!combat(ennemisBase.boss50, true)) return;
+    } else if(jour === 60) {
+        log("🚨 BOSS FINAL : Dictateur inter-galaxie !", "#e74c3c");
+        if(!combat(ennemisBase.boss60, true)) {
+            return;
+        } else {
+            log("━━━━━━━━━━━━━━━━━━━━━━", "#f1c40f");
+            log("🏆 VICTOIRE TOTALE ! 🏆", "#f1c40f");
+            log("Tu as survécu aux 60 jours les plus dangereux de l'humanité !", "#2ecc71");
+            log("Félicitations, tu es une légende !", "#f1c40f");
+            log("━━━━━━━━━━━━━━━━━━━━━━", "#f1c40f");
+            const btn = document.getElementById('btn-next');
+            btn.innerText = "🎉 REJOUER";
+            btn.onclick = () => location.reload();
+            btn.disabled = false;
+            return;
+        }
     } else {
-        // Jours normaux : tirer un event aléatoire
         const events = getEventsPossibles();
         const selectedEvent = choice(events);
         selectedEvent();
@@ -901,12 +998,13 @@ function createCard(obj, isMerchant = false) {
         card.onclick = () => {
             if(joueur.or >= 20) {
                 joueur.or -= 20; 
+                log("→ Achat : " + obj.nom + " pour 20 or", "#3498db");
                 appliquer_objet(obj); 
                 card.style.opacity = "0.3"; 
                 card.style.cursor = "not-allowed";
                 card.onclick = null;
             } else {
-                log("❌ Pas assez d'or !", "#e74c3c");
+                log("❌ Pas assez d'or ! (Il te faut 20 or)", "#e74c3c");
             }
         };
     }
@@ -996,22 +1094,22 @@ function renderEventsCodex() {
     grid.style.display = 'flex';
     grid.style.flexWrap = 'wrap';
     grid.style.gap = '15px';
-    grid.style.justifyContent = 'flex-start';
+    grid.style.justifyContent = 'center';
     
     const eventsData = [
         {
             nom: "Voleur",
             desc: "Ennemi rapide",
             icon: "🗡️",
-            stats: "PV: 60 | Att: 6 | Def: 2",
-            proba: " Très Fréquent",
+            stats: "PV: 60 | Att: 6 | Def: 2 | Or: 1",
+            proba: "Très Fréquent",
             color: "#e74c3c"
         },
         {
             nom: "Guerrier",
             desc: "Équilibré",
             icon: "⚔️",
-            stats: "PV: 100 | Att: 8 | Def: 1.8",
+            stats: "PV: 100 | Att: 8 | Def: 1.8 | Or: 20",
             proba: "Très Fréquent",
             color: "#e74c3c"
         },
@@ -1019,7 +1117,7 @@ function renderEventsCodex() {
             nom: "Assassin",
             desc: "Frappe fort",
             icon: "🔪",
-            stats: "PV: 80 | Att: 15 | Def: 2",
+            stats: "PV: 80 | Att: 15 | Def: 2 | Or: 20",
             proba: "Fréquent",
             color: "#e74c3c"
         },
@@ -1027,15 +1125,15 @@ function renderEventsCodex() {
             nom: "Mage noir",
             desc: "Attaque magique",
             icon: "🔮",
-            stats: "PV: 100 | Att: 30 | Def: 1",
-            proba: "J5+ Rare",
+            stats: "PV: 100 | Att: 30 | Def: 1 | Or: 30",
+            proba: "J5+ Fréquent",
             color: "#9b59b6"
         },
         {
             nom: "Berserker",
             desc: "Tank agressif",
             icon: "🪓",
-            stats: "PV: 120 | Att: 15 | Def: 1.5",
+            stats: "PV: 120 | Att: 15 | Def: 1.5 | Or: 20",
             proba: "J5+ Fréquent",
             color: "#c0392b"
         },
@@ -1043,15 +1141,15 @@ function renderEventsCodex() {
             nom: "Nécromancien",
             desc: "Magie noire",
             icon: "💀",
-            stats: "PV: 200 | Att: 20 | Def: 1",
-            proba: "J5+ Rare",
+            stats: "PV: 200 | Att: 20 | Def: 1 | Or: 30",
+            proba: "J5+ Fréquent",
             color: "#8e44ad"
         },
         {
             nom: "Paladin corrompu",
             desc: "Défense élevée",
             icon: "🛡️",
-            stats: "PV: 250 | Att: 10 | Def: 0.6",
+            stats: "PV: 250 | Att: 10 | Def: 0.6 | Or: 20",
             proba: "J5+ Fréquent",
             color: "#34495e"
         },
@@ -1059,15 +1157,31 @@ function renderEventsCodex() {
             nom: "Champion",
             desc: "Fort (J5+)",
             icon: "👑",
-            stats: "PV: 200 | Att: 20 | Def: 1.5",
+            stats: "PV: 200 | Att: 20 | Def: 1.5 | Or: 30",
             proba: "J5+ Fréquent",
             color: "#c0392b"
+        },
+        {
+            nom: "Dragon sauvage",
+            desc: "Créature mythique",
+            icon: "🐉",
+            stats: "PV: 400 | Att: 40 | Def: 1.2 | Or: 50",
+            proba: "J10+ Rare",
+            color: "#e74c3c"
+        },
+        {
+            nom: "Titan de pierre",
+            desc: "Colosse antique",
+            icon: "🗿",
+            stats: "PV: 500 | Att: 35 | Def: 0.8 | Or: 60",
+            proba: "J10+ Rare",
+            color: "#95a5a6"
         },
         {
             nom: "Boss J10",
             desc: "Seigneur de fer",
             icon: "👑",
-            stats: "PV: 450 | Att: 25",
+            stats: "PV: 450 | Att: 25 | Or: 30",
             proba: "J10",
             color: "#8e44ad"
         },
@@ -1075,7 +1189,7 @@ function renderEventsCodex() {
             nom: "Boss J20",
             desc: "Roi du Nord",
             icon: "❄️",
-            stats: "PV: 2500 | Att: 80",
+            stats: "PV: 2500 | Att: 80 | Or: 40",
             proba: "J20",
             color: "#3498db"
         },
@@ -1083,7 +1197,7 @@ function renderEventsCodex() {
             nom: "Boss J30",
             desc: "Roi du monde",
             icon: "🌍",
-            stats: "PV: 7000 | Att: 250",
+            stats: "PV: 7000 | Att: 250 | Or: 60",
             proba: "J30",
             color: "#27ae60"
         },
@@ -1091,7 +1205,7 @@ function renderEventsCodex() {
             nom: "Boss J40",
             desc: "Prince solaire",
             icon: "☀️",
-            stats: "PV: 12000 | Att: 550",
+            stats: "PV: 12000 | Att: 550 | Or: 80",
             proba: "J40",
             color: "#f39c12"
         },
@@ -1099,7 +1213,7 @@ function renderEventsCodex() {
             nom: "Boss J50",
             desc: "Roi galactique",
             icon: "🌌",
-            stats: "PV: 20000 | Att: 750",
+            stats: "PV: 20000 | Att: 750 | Or: 90",
             proba: "J50",
             color: "#9b59b6"
         },
@@ -1108,7 +1222,7 @@ function renderEventsCodex() {
             desc: "Repos payant ou gratuit",
             icon: "🏠",
             stats: "10 or = +30 PV | Gratuit = +10 PV",
-            proba: "Courant",
+            proba: "Fréquent",
             color: "#2ecc71"
         },
         {
