@@ -35,6 +35,7 @@
         .stat-item { text-align: center; flex: 1; }
         .stat-label { font-size: 0.7em; color: #888; text-transform: uppercase; }
         .stat-value { font-size: 1.2em; font-weight: bold; color: var(--accent); }
+        .boutique-tab-btn { position: fixed; bottom: 20px; left: 20px; border-color: #9b59b6; color: #9b59b6; z-index: 999; }
 
         #game-screen {
             width: 950px; height: 350px; background: #000; border: 2px solid #222;
@@ -89,7 +90,6 @@
         .btn:hover { background: #fff; color: #000; }
         .btn:disabled { opacity: 0.3; cursor: not-allowed; }
         .codex-tab-btn { position: fixed; bottom: 20px; right: 20px; border-color: var(--accent); color: var(--accent); }
-
         .log-entry { margin-bottom: 5px; border-left: 2px solid #333; padding-left: 10px; font-size: 0.9em; }
     </style>
 </head>
@@ -113,6 +113,7 @@
         <div class="stat-item"><div class="stat-label">Défense</div><div id="stat-def" class="stat-value">3.00</div></div>
         <div class="stat-item"><div class="stat-label">Regen</div><div id="stat-regen" class="stat-value">20</div></div>
         <div class="stat-item"><div class="stat-label">Intel</div><div id="stat-int" class="stat-value">0</div></div>
+        <div class="stat-item"><div class="stat-label">Gemmes</div><div id="stat-gemmes" class="stat-value">0</div></div>
     </div>
 
     <div id="game-screen"></div>
@@ -125,6 +126,7 @@
 
     <button id="btn-next" class="btn" onclick="playTurn()" style="width: 950px; font-size: 1.4em;">Lancer Jour 1</button>
     <button class="btn codex-tab-btn" onclick="toggleCodex(true)">📖 CODEX</button>
+    <button class="btn boutique-tab-btn" onclick="toggleBoutique(true)">💎 BOUTIQUE</button>
 
     <div id="codex-overlay">
         <div style="display:flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); padding-bottom: 15px; margin-bottom: 20px;">
@@ -155,7 +157,9 @@
 const DEF_MIN = 0.2;
 let jour = 1;
 let diffSetting = { name: 'NORMAL', gold: 1, enemy: 1, boss: 1 };
-let joueur = { intelligence: 0, pv: 100, att: 8, def: 3, or: 40, regen: 20, capas: [] };
+let joueur = { intelligence: 0, pv: 100, att: 8, def: 3, or: 40, regen: 20, capas: [] , gemmes: 0};
+let permanentUpgrades = JSON.parse(localStorage.getItem('pixelquest_upgrades') || '{"pv":0,"att":0,"def":0,"or":0,"regen":0}');
+let upgradesCost = JSON.parse(localStorage.getItem('pixelquest_costs') || '{"pv":10,"att":10,"def":10,"or":10,"regen":10}');
 
 const oCommuns = [
     {nom: "Épée rouillée", att: 3, r:"commun"},
@@ -165,7 +169,7 @@ const oCommuns = [
     {nom: "Bâton magique", att: 2, regen: 1, r:"commun"},
     {nom: "Buff commun", att: 2, pv: 5, def: -0.05, r:"commun"},
     {nom: "Bouclier", def: -0.1, pv: 5, r:"commun"},
-    {nom: "Buff evo commun", att: 4, pv: 10, regen: 2, def: -0.1, r:"commun"}
+    {nom: "Buff evo commun", att: 4, pv: 10, regen: 1, def: -0.1, r:"commun"}
 ];
 
 const oRares = [
@@ -176,7 +180,7 @@ const oRares = [
     {nom: "Colt 1911", att: 10, r:"rare"},
     {nom: "Buff rare", att: 4, pv: 10, def: -0.1, r:"rare"},
     {nom: "M4", att: 18, r:"rare"},
-    {nom: "Buff evo rare", att: 8, pv: 20, def: -0.2, regen: 4, r:"rare"},
+    {nom: "Buff evo rare", att: 8, pv: 20, def: -0.2, regen: 2, r:"rare"},
     {nom: "Livre tactique", att: 8, intelligence: 5, r:"rare"}
 ];
 
@@ -186,8 +190,8 @@ const oLeg = [
     {nom: "Coeur du héros", pv: 50, capa: "vol_de_vie", r:"legendaire"},
     {nom: "Carapace absolue", pv: 70, capa: "reduc_degats", r:"legendaire"},
     {nom: "Lames frénétiques", att: 45, capa: "multi_attaque", r:"legendaire"},
-    {nom: "Buff legendaire", att: 30, pv: 50, def: -0.3, regen: 5, r:"legendaire"},
-    {nom: "Savoir continu", intelligence: 8, capa: "ia", r:"legendaire"}
+    {nom: "Buff legendaire", att: 30, pv: 50, def: -0.3, regen: 8, r:"legendaire"},
+    {nom: "Savoir continu", intelligence: 10, capa: "ia", r:"legendaire"}
 ];
 
 const oUltra = [
@@ -195,7 +199,7 @@ const oUltra = [
     {nom: "Gantelet de puissance", att: 90, capa: "crit_25", r:"ultra"},
     {nom: "Tenu de camouflage ultime", pv: 80, def: -0.4, capa: "esquive_total", r:"ultra"},
     {nom: "Buff ultime", pv: 125, def: -0.6, att: 50, regen: 15, r:"ultra"},
-    {nom: "Source du savoir", intelligence: 12, capa: "raisonnement", r:"ultra"},
+    {nom: "Source du savoir", intelligence: 15, capa: "raisonnement", r:"ultra"},
     {nom: "Negociant", capa: "investissement", r:"ultra"}
 ];
 
@@ -215,14 +219,14 @@ const oCheat = [
 ];
 
 const oMarchandExclusif = [
-    {nom: "Élixir ancestral", pv: 40, regen: 8, intelligence: 3, r:"rare"},
-    {nom: "Couronne du sage", intelligence: 15, def: -0.2, att: 10, r:"legendaire"},
-    {nom: "Cape d'invisibilité", def: -0.35, pv: 30, capa: "phase", r:"ultra"},
-    {nom: "Grimoire interdit", intelligence: 20, att: 35, pv: 25, r:"legendaire"},
-    {nom: "Anneau du phénix", pv: 35, regen: 12, r:"rare"},
-    {nom: "Lame du voyageur", att: 25, intelligence: 4, r:"rare"},
-    {nom: "Pierre philosophale", intelligence: 8, capa: "alchimie", r:"ultra"},
-    {nom: "Médaillon du destin", pv: 40, att: 20, def: -0.25, intelligence: 8, r:"legendaire"}
+    {nom: "Élixir ancestral", pv: 30, regen: 6, r:"rare"},
+    {nom: "Couronne du sage", intelligence: 45, def: -0.2, att: 25, r:"legendaire"},
+    {nom: "Cape d'invisibilité", def: -0.4, pv: 80, capa: "phase", r:"ultra"},
+    {nom: "Grimoire interdit", intelligence: 10, att: 35, r:"legendaire"},
+    {nom: "Anneau du phénix", pv: 25, regen: 10, r:"rare"},
+    {nom: "Lame du voyageur", att: 35, r:"rare"},
+    {nom: "Pierre philosophale",def: -0.2, pv: 50, regen: 8, capa: "alchimie", r:"ultra"},
+    {nom: "Médaillon du destin", pv: 40, att: 15, def: -0.20, intelligence: 5, r:"legendaire"}
 ];
 
 const ALL_ITEMS = [...oCommuns, ...oRares, ...oLeg, ...oUltra, ...oIntel, ...oCheat, ...oMarchandExclusif];
@@ -236,14 +240,14 @@ const ennemisBase = {
     berserker: {nom: "Berserker", pv: 120, att: 15, def: 1.5, or: 20},
     paladin: {nom: "Paladin corrompu", pv: 250, att: 10, def: 0.6, or: 20},
     necromancien: {nom: "Nécromancien", pv: 200, att: 20, def: 1, or: 30},
-    dragon: {nom: "Dragon sauvage", pv: 400, att: 40, def: 1.2, or: 50},
-    titan: {nom: "Titan de pierre", pv: 500, att: 35, def: 0.8, or: 60},
-    boss10: {nom: "Seigneur de fer", pv: 450, att: 25, def: 1, or: 30},
-    boss20: {nom: "Roi du Nord", pv: 2500, att: 80, def: 0.5, or: 40},
-    boss30: {nom: "Roi du monde", pv: 7000, att: 250, def: 0.3, or: 60},
-    boss40: {nom: "Prince solaire", pv: 12000, att: 550, def: 0.20, or: 80},
-    boss50: {nom: "Roi de la galaxie", pv: 20000, att: 750, def: 0.10, or: 90},
-    boss60: {nom: "Dictateur inter-galaxie", pv: 35000, att: 1200, def: 0.1, or: 100}
+    dragon: {nom: "Dragon sauvage", pv: 400, att: 40, def: 1.2, or: 50, gemmes: 2},
+    titan: {nom: "Titan de pierre", pv: 500, att: 35, def: 0.8, or: 60, gemmes: 2},
+    boss10: {nom: "Seigneur de fer", pv: 450, att: 25, def: 1, or: 30, gemmes: 1},
+    boss20: {nom: "Roi du Nord", pv: 2500, att: 80, def: 0.5, or: 40, gemmes: 2},
+    boss30: {nom: "Roi du monde", pv: 7000, att: 250, def: 0.3, or: 60, gemmes: 4},
+    boss40: {nom: "Prince solaire", pv: 12000, att: 450, def: 0.20, or: 80, gemmes: 6},
+    boss50: {nom: "Roi de la galaxie", pv: 20000, att: 600, def: 0.10, or: 90, gemmes: 9},
+    boss60: {nom: "Dictateur inter-galaxie", pv: 35000, att: 900, def: 0.1, or: 100, gemmes: 12}
 };
 
 // ======================
@@ -258,7 +262,8 @@ function ennemi_elite(e) {
         pv: Math.floor(e.pv * 2),
         att: Math.floor(e.att * 2),
         def: Math.max(0.1, e.def / 2),
-        or: e.or
+        or: e.or,
+        gemmes: e.gemmes || 0
     };
 }
 
@@ -268,7 +273,8 @@ function ennemi_elite2(e) {
         pv: Math.floor(e.pv * 4),
         att: Math.floor(e.att * 4),
         def: Math.max(0.1, e.def / 2),
-        or: e.or
+        or: e.or,
+        gemmes: e.gemmes || 0
     };
 }
 
@@ -278,7 +284,8 @@ function ennemi_elite3(e) {
         pv: Math.floor(e.pv * 6),
         att: Math.floor(e.att * 6),
         def: Math.max(0.1, e.def / 2),
-        or: e.or
+        or: e.or,
+        gemmes: e.gemmes || 0
     };
 }
 
@@ -289,11 +296,24 @@ function startGame(mode) {
     if(mode === 'facile') diffSetting = { name: 'FACILE', gold: 1.5, enemy: 1, boss: 1 };
     if(mode === 'normal') diffSetting = { name: 'NORMAL', gold: 1, enemy: 1, boss: 1 };
     if(mode === 'difficile') diffSetting = { name: 'DIFFICILE', gold: 1, enemy: 1.5, boss: 1.25 };
+    
+    // Charger les gemmes
+    joueur.gemmes = parseInt(localStorage.getItem('pixelquest_gemmes') || '0');
+    
+    // Appliquer les upgrades permanents
+    joueur.pv += permanentUpgrades.pv;
+    joueur.att += permanentUpgrades.att;
+    joueur.def -= permanentUpgrades.def;
+    joueur.or += permanentUpgrades.or;
+    joueur.regen += permanentUpgrades.regen;
+    
     document.getElementById('start-menu').style.display = 'none';
     log("⚙️ Difficulté : " + diffSetting.name, "#f1c40f");
+    if(permanentUpgrades.pv > 0 || permanentUpgrades.att > 0 || permanentUpgrades.def > 0 || permanentUpgrades.or > 0 || permanentUpgrades.regen > 0) {
+        log("💎 Améliorations permanentes actives !", "#9b59b6");
+    }
     updateUI();
 }
-
 function updateUI() {
     document.getElementById('stat-jour').innerText = jour;
     document.getElementById('stat-pv').innerText = Math.floor(joueur.pv);
@@ -302,6 +322,7 @@ function updateUI() {
     document.getElementById('stat-def').innerText = joueur.def.toFixed(2);
     document.getElementById('stat-regen').innerText = Math.floor(joueur.regen);
     document.getElementById('stat-int').innerText = joueur.intelligence;
+    document.getElementById('stat-gemmes').innerText = joueur.gemmes;
     document.getElementById('btn-next').innerText = "Lancer Jour " + jour;
 }
 
@@ -679,7 +700,8 @@ function combat(eBase, isBoss = false) {
         pv: eBase.pv * m, 
         att: eBase.att * m, 
         def: eBase.def, 
-        or: eBase.or * diffSetting.gold 
+        or: eBase.or * diffSetting.gold,
+        gemmes: eBase.gemmes || 0
     };
     
     log("⚔️ COMBAT : " + en.nom, "#e74c3c");
@@ -687,22 +709,18 @@ function combat(eBase, isBoss = false) {
     let inv = joueur.capas.includes("invincible_3tour") ? 3 : 0;
 
     while(joueur.pv > 0 && pvE > 0) {
-        // L'ennemi attaque en PREMIER
         if(pvE > 0) {
             let sub = en.att * joueur.def;
             if(joueur.capas.includes("reduc_degats")) sub /= 2;
             if(inv > 0) { sub = 0; inv--; }
-            
             if(joueur.capas.includes("reflect_50")) {
                 pvE -= (sub * 0.5);
             }
-            
             joueur.pv -= sub;
         }
         
         if(joueur.pv <= 0) break;
         
-        // Puis le joueur attaque
         let atks = 1;
         if(joueur.capas.includes("multi_attaque")) { 
             while(randint(1, 3) === 1) atks++; 
@@ -710,35 +728,33 @@ function combat(eBase, isBoss = false) {
 
         for(let i=0; i<atks; i++) {
             let d = joueur.att * en.def;
-            
             if(joueur.intelligence > jour * 2.5) {
                 d *= (joueur.intelligence / jour * 2);
             }
-            
             if(joueur.capas.includes("raisonnement") && joueur.intelligence >= jour*1.5) {
                 d *= 2;
             }
-            
             if(joueur.capas.includes("extermination") && randint(1,2) === 1) {
                 pvE -= 250;
             }
-            
             if(joueur.capas.includes("crit_25") && randint(1, 4) === 1) {
                 d *= 5;
             }
-            
             pvE -= d;
-            
             if(joueur.capas.includes("vol_de_vie")) {
                 joueur.pv += (d * 0.25);
             }
-            
             if(pvE <= 0) break;
         }
     }
 
     if(joueur.pv > 0) {
         log("🏆 Victoire !", "#2ecc71");
+        if(en.gemmes) {
+            joueur.gemmes += en.gemmes;
+            localStorage.setItem('pixelquest_gemmes', joueur.gemmes.toString());
+            log("→ +" + en.gemmes + " 💎 gemmes récupérées", "#9b59b6");
+        }
         log("→ +" + Math.floor(en.or) + " or récupérés", "#f1c40f");
         log("→ +" + Math.floor(joueur.regen) + " PV régénérés", "#2ecc71");
         joueur.or += en.or; 
@@ -764,7 +780,8 @@ function ennemi_boss(e) {
         pv: Math.floor(e.pv * 8),
         att: Math.floor(e.att * 8),
         def: Math.max(0.1, e.def / 2.5),
-        or: Math.floor(e.or * 1.5)
+        or: Math.floor(e.or * 1.5),
+        gemmes: e.gemmes || 0
     };
 }
 
@@ -882,6 +899,11 @@ function getEventsPossibles() {
 // ======================
 // CYCLE DE JEU
 // ======================
+function toggleBoutique(show) {
+    if(show) {
+        window.open('boutique.html', 'Boutique', 'width=900,height=700');
+    }
+}
 function playTurn() {
     document.getElementById('btn-next').disabled = true;
     log("━━━━━ JOUR " + jour + " ━━━━━", "#f1c40f");
@@ -1205,7 +1227,7 @@ function renderEventsCodex() {
             nom: "Boss J40",
             desc: "Prince solaire",
             icon: "☀️",
-            stats: "PV: 12000 | Att: 550 | Or: 80",
+            stats: "PV: 12000 | Att: 450 | Or: 80",
             proba: "J40",
             color: "#f39c12"
         },
@@ -1213,7 +1235,15 @@ function renderEventsCodex() {
             nom: "Boss J50",
             desc: "Roi galactique",
             icon: "🌌",
-            stats: "PV: 20000 | Att: 750 | Or: 90",
+            stats: "PV: 20000 | Att: 600 | Or: 90",
+            proba: "J50",
+            color: "#9b59b6"
+        },
+        {
+            nom: "Boss J60",
+            desc: "Dictateur inter-galaxie",
+            icon: "🌑",
+            stats: "PV: 35000 | Att: 900 | Or: 100",
             proba: "J50",
             color: "#9b59b6"
         },
@@ -1388,6 +1418,19 @@ function renderEventsCodex() {
         grid.appendChild(card);
     });
 }
+// Écouter les messages de la boutique
+window.addEventListener('message', function(event) {
+    if(event.data.type === 'upgrade_bought') {
+        log("💎 Amélioration achetée : " + event.data.stat.toUpperCase() + " +" + event.data.bonus, "#9b59b6");
+        
+        // Recharger les données depuis localStorage
+        permanentUpgrades = JSON.parse(localStorage.getItem('pixelquest_upgrades'));
+        upgradesCost = JSON.parse(localStorage.getItem('pixelquest_costs'));
+        joueur.gemmes = parseInt(localStorage.getItem('pixelquest_gemmes'));
+        
+        updateUI();
+    }
+});
 </script>
 </body>
 </html>
