@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>PIXEL QUEST - V2</title>
+    <title>PIXEL QUEST - Synchronized</title>
     <style>
         :root {
             --bg-color: #08080c;
@@ -363,11 +363,11 @@ function appliquer_objet(obj) {
 // ======================
 function loot_du_jour() {
     const probas = [
-        [oCommuns, 100], [oCommuns, 50], [oRares, 50],
-        [oLeg, 3], [oUltra, 1], [oIntel, 25], [oCheat, 0.2]
+        [oCommuns, 1000], [oCommuns, 500], [oRares, 500],
+        [oLeg, 30], [oUltra, 10], [oIntel, 250], [oCheat, 2]
     ];
     probas.forEach(([pool, chance]) => {
-        if(randint(1, 100) <= chance && pool.length > 0) {
+        if(randint(1, 1000) <= chance && pool.length > 0) {
             appliquer_objet(choice(pool));
         }
     });
@@ -453,11 +453,11 @@ function event_coffre() {
     log("📦 En fouillant les buissons, tu aperçois quelque chose qui brille...");
     log("Un coffre apparaît !");
     const probas = [
-        [oCommuns, 100], [oCommuns, 50], [oRares, 40],
-        [oLeg, 2], [oIntel, 20]
+        [oCommuns, 1000], [oCommuns, 500], [oRares, 400],
+        [oLeg, 20], [oIntel, 200]
     ];
     probas.forEach(([pool, chance]) => {
-        if(randint(1, 100) <= chance && pool.length > 0) {
+        if(randint(1, 1000) <= chance && pool.length > 0) {
             appliquer_objet(choice(pool));
         }
     });
@@ -468,11 +468,11 @@ function event_coffre_plus() {
     log("En t'approchant, tu découvres un coffre orné de runes mystiques !");
     log("C'est un coffre rare !");
     const probas = [
-        [oRares, 100], [oRares, 70], [oLeg, 8],
-        [oUltra, 3], [oIntel, 50], [oCheat, 0.5]
+        [oRares, 1000], [oRares, 700], [oLeg, 80],
+        [oUltra, 30], [oIntel, 500], [oCheat, 5]
     ];
     probas.forEach(([pool, chance]) => {
-        if(randint(1, 100) <= chance && pool.length > 0) {
+        if(randint(1, 1000) <= chance && pool.length > 0) {
             appliquer_objet(choice(pool));
         }
     });
@@ -650,18 +650,18 @@ function event_marchand_ambulant() {
 // ======================
 function genererMarchand() {
     const probas = [
-        [oCommuns, 100], 
-        [oCommuns, 70], 
-        [oRares, 40],
-        [oLeg, 4], 
-        [oUltra, 1.5], 
-        [oIntel, 50], 
-        [oCheat, 0.3]
+        [oCommuns, 1000], 
+        [oCommuns, 700], 
+        [oRares, 400],
+        [oLeg, 40], 
+        [oUltra, 15], 
+        [oIntel, 50 ], 
+        [oCheat, 3]
     ];
     
     let stock = [];
     probas.forEach(([pool, chance]) => {
-        if(randint(1, 100) <= chance && pool.length > 0) {
+        if(randint(1, 1000) <= chance && pool.length > 0) {
             stock.push(choice(pool));
         }
     });
