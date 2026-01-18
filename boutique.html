@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>PIXEL QUEST - Boutique</title>
+    <style>
+        :root {
+            --bg-color: #08080c;
+            --card-bg: #111116;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 40px;
+            margin: 0;
+            user-select: none;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #9b59b6;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin: 0;
+            color: #9b59b6;
+        }
+        .btn {
+            background: #000;
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background: #fff;
+            color: #000;
+        }
+        .info-box {
+            background: rgba(155, 89, 182, 0.1);
+            border: 1px solid #9b59b6;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .info-box h3 {
+            margin: 0 0 10px 0;
+            color: #9b59b6;
+        }
+        .info-box p {
+            margin: 0;
+            font-size: 0.85em;
+            color: #bbb;
+        }
+        .upgrades-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .upgrade-card {
+            background: var(--card-bg);
+            border: 2px solid #9b59b6;
+            padding: 15px;
+            width: 220px;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+        .upgrade-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 15px #9b59b6;
+        }
+        .upgrade-icon {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .upgrade-label {
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+        .upgrade-current {
+            text-align: center;
+            color: #bbb;
+            font-size: 0.75em;
+            margin-bottom: 10px;
+        }
+        .upgrade-next {
+            text-align: center;
+            color: #fff;
+            font-size: 0.8em;
+            margin-bottom: 15px;
+        }
+        .upgrade-btn {
+            width: 100%;
+            border-color: #9b59b6;
+            color: #9b59b6;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💎 BOUTIQUE PERMANENTE</h1>
+        <button class="btn" onclick="window.close()">FERMER ✖</button>
+    </div>
+
+    <p style="color: #bbb; margin-bottom: 20px;">
+        Améliore tes statistiques de départ ! Ces améliorations sont permanentes et persistent après la mort.
+    </p>
+
+    <div class="info-box">
+        <h3>💎 Tes Gemmes: <span id="gemmes-display">0</span></h3>
+        <p>Obtenez des gemmes en battant les Boss et les ennemis Dragon/Titan</p>
+    </div>
+
+    <div class="upgrades-container" id="upgrades-container"></div>
+
+    <script>
+        // Chargement des données depuis localStorage
+        let permanentUpgrades = JSON.parse(localStorage.getItem('pixelquest_upgrades') || '{"pv":0,"att":0,"def":0,"or":0,"regen":0}');
+        let upgradesCost = JSON.parse(localStorage.getItem('pixelquest_costs') || '{"pv":10,"att":10,"def":10,"or":10,"regen":10}');
+        let gemmes = parseInt(localStorage.getItem('pixelquest_gemmes') || '0');
+
+        // Configuration des améliorations
+        const upgrades = [
+            {stat: 'pv', label: 'PV MAX', icon: '❤️', bonus: 10, color: '#e74c3c'},
+            {stat: 'att', label: 'ATTAQUE', icon: '⚔️', bonus: 5, color: '#f39c12'},
+            {stat: 'or', label: 'OR DE DÉPART', icon: '💰', bonus: 5, color: '#f1c40f'},
+            {stat: 'def', label: 'DÉFENSE', icon: '🛡️', bonus: 0.1, color: '#3498db'},
+            {stat: 'regen', label: 'RÉGÉNÉRATION', icon: '✨', bonus: 2, color: '#2ecc71'}
+        ];
+
+        function renderBoutique() {
+            const container = document.getElementById('upgrades-container');
+            container.innerHTML = '';
+            
+            document.getElementById('gemmes-display').innerText = gemmes;
+
+            upgrades.forEach(up => {
+                const card = document.createElement('div');
+                card.className = 'upgrade-card';
+                
+                const currentBonus = permanentUpgrades[up.stat];
+                const cost = upgradesCost[up.stat];
+                
+                card.innerHTML = `
+                    <div class="upgrade-icon">${up.icon}</div>
+                    <div class="upgrade-label" style="color: ${up.color};">
+                        ${up.label}
+                    </div>
+                    <div class="upgrade-current">
+                        Stats de départ: <span style="color: #2ecc71; font-weight: bold;">+${up.stat === 'def' ? (currentBonus * 10) : currentBonus}</span>
+                    </div>
+                    <div class="upgrade-next">
+                        Prochain: <span style="color: ${up.color};">+${up.stat === 'def' ? up.bonus : up.bonus}</span>
+                    </div>
+                    <button class="btn upgrade-btn" onclick="buyUpgrade('${up.stat}', ${up.bonus})">
+                        💎 ${cost} Gemmes
+                    </button>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        function buyUpgrade(stat, bonus) {
+            const cost = upgradesCost[stat];
+            
+            if(gemmes < cost) {
+                alert('Pas assez de gemmes ! Il te faut ' + cost + ' gemmes.');
+                return;
+            }
+            
+            gemmes -= cost;
+            permanentUpgrades[stat] += (stat === 'def' ? bonus : bonus);
+            upgradesCost[stat] += 5;
+            
+            // Sauvegarder
+            localStorage.setItem('pixelquest_upgrades', JSON.stringify(permanentUpgrades));
+            localStorage.setItem('pixelquest_costs', JSON.stringify(upgradesCost));
+            localStorage.setItem('pixelquest_gemmes', gemmes.toString());
+            
+            // Notifier le parent si ouvert dans une iframe/popup
+            if(window.opener) {
+                window.opener.postMessage({type: 'upgrade_bought', stat: stat, bonus: bonus}, '*');
+            }
+            
+            renderBoutique();
+        }
+
+        // Écouter les messages du parent pour mise à jour des gemmes
+        window.addEventListener('message', function(event) {
+            if(event.data.type === 'update_gemmes') {
+                gemmes = event.data.gemmes;
+                localStorage.setItem('pixelquest_gemmes', gemmes.toString());
+                renderBoutique();
+            }
+        });
+
+        // Initialisation
+        renderBoutique();
+    </script>
+</body>
+</html>
