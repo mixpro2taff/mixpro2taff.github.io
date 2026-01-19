@@ -742,7 +742,7 @@ function combat(eBase, isBoss = false) {
             }
             pvE -= d;
             if(joueur.capas.includes("vol_de_vie")) {
-                joueur.pv += (d * 0.10);
+                joueur.pv += (d * 0.05);
             }
             if(pvE <= 0) break;
         }
