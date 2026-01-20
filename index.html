@@ -290,6 +290,34 @@ function ennemi_elite3(e) {
 }
 
 // ======================
+// SYSTÈME DE GEMMES QUOTIDIENNES
+// ======================
+function checkDailyGems() {
+    const today = new Date().toDateString();
+    const lastClaim = localStorage.getItem('pixelquest_last_daily_claim');
+    const lastTimestamp = parseInt(localStorage.getItem('pixelquest_last_timestamp') || '0');
+    const currentTimestamp = Date.now();
+    
+    if(currentTimestamp < lastTimestamp) {
+        log("⚠️ Détection de modification de l'heure système !", "#e74c3c");
+        localStorage.setItem('pixelquest_last_timestamp', currentTimestamp.toString());
+        return;
+    }
+    
+    if(lastClaim !== today) {
+        joueur.gemmes += 8;
+        localStorage.setItem('pixelquest_gemmes', joueur.gemmes.toString());
+        localStorage.setItem('pixelquest_last_daily_claim', today);
+        localStorage.setItem('pixelquest_last_timestamp', currentTimestamp.toString());
+        
+        log("🎁 BONUS QUOTIDIEN : +8 💎 gemmes !", "#9b59b6");
+        updateUI();
+    } else {
+        localStorage.setItem('pixelquest_last_timestamp', currentTimestamp.toString());
+    }
+}
+
+// ======================
 // UI
 // ======================
 function startGame(mode) {
@@ -299,6 +327,8 @@ function startGame(mode) {
     
     // Charger les gemmes
     joueur.gemmes = parseInt(localStorage.getItem('pixelquest_gemmes') || '0');
+
+    checkDailyGems();
     
     // Appliquer les upgrades permanents
     joueur.pv += permanentUpgrades.pv;
