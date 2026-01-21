@@ -262,6 +262,34 @@ let diffSetting = { name: 'NORMAL', gold: 1, enemy: 1, boss: 1 };
 let joueur = { intelligence: 0, pv: 100, att: 8, def: 3, or: 40, regen: 20, capas: [] , gemmes: 0};
 let permanentUpgrades = JSON.parse(localStorage.getItem('pixelquest_upgrades') || '{"pv":0,"att":0,"def":0,"or":0,"regen":0}');
 let upgradesCost = JSON.parse(localStorage.getItem('pixelquest_costs') || '{"pv":10,"att":10,"def":10,"or":10,"regen":10}');
+// CHARGER LA SÉLECTION D'OBJETS AU DÉMARRAGE DE LA PAGE
+let selectedCollectionItems = [];
+function loadSelectedItems() {
+    const savedItems = JSON.parse(localStorage.getItem('pixelquest_selected_items') || '[]');
+    const inventory = JSON.parse(localStorage.getItem('pixelquest_inventory') || '[]');
+    
+    selectedCollectionItems = [];
+    savedItems.forEach(savedItem => {
+        let slotIndex = 0;
+        inventory.forEach((invItem) => {
+            if(invItem.nom === savedItem.nom && selectedCollectionItems.filter(s => s.item.nom === savedItem.nom).length === slotIndex) {
+                selectedCollectionItems.push({
+                    key: `${savedItem.nom}-${slotIndex}`,
+                    item: savedItem
+                });
+                slotIndex++;
+            }
+        });
+    });
+    
+    // Mettre à jour l'affichage du compteur dans le menu
+    if(document.getElementById('selected-count')) {
+        document.getElementById('selected-count').innerText = selectedCollectionItems.length;
+    }
+}
+
+// Charger au démarrage
+loadSelectedItems();
 
 const oCommuns = [
     {nom: "Épée rouillée", att: 3, r:"commun"},
@@ -1576,27 +1604,8 @@ window.addEventListener('message', function(event) {
 let selectedCollectionItems = [];
 
 function openCollection() {
-    // CHARGER les objets déjà sélectionnés depuis localStorage
-    const savedItems = JSON.parse(localStorage.getItem('pixelquest_selected_items') || '[]');
-    const inventory = JSON.parse(localStorage.getItem('pixelquest_inventory') || '[]');
-    
-    // Reconstruire selectedCollectionItems avec les clés
-    selectedCollectionItems = [];
-    savedItems.forEach(savedItem => {
-        // Trouver l'index de cet objet dans l'inventaire
-        let slotIndex = 0;
-        inventory.forEach((invItem, idx) => {
-            if(invItem.nom === savedItem.nom) {
-                if(selectedCollectionItems.filter(s => s.item.nom === savedItem.nom).length === slotIndex) {
-                    selectedCollectionItems.push({
-                        key: `${savedItem.nom}-${slotIndex}`,
-                        item: savedItem
-                    });
-                }
-                slotIndex++;
-            }
-        });
-    });
+    // Recharger la sélection depuis localStorage
+    loadSelectedItems();
     
     document.getElementById('collection-overlay').style.display = 'block';
     renderCollection();
