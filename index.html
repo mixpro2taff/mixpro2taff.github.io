@@ -1686,6 +1686,10 @@ function toggleCollectionSelection(item, itemKey) {
         selectedCollectionItems.push({ key: itemKey, item: item });
     }
     
+    // SAUVEGARDER dans localStorage
+    const items = selectedCollectionItems.map(sel => sel.item);
+    localStorage.setItem('pixelquest_selected_items', JSON.stringify(items));
+    
     renderCollection();
 }
 
