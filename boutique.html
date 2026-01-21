@@ -232,6 +232,132 @@
                 renderBoutique();
             }
         });
+        function buyChest() {
+            if(gemmes < chestCost) {
+                alert('Pas assez de gemmes ! Il te faut ' + chestCost + ' gemmes.');
+                return;
+            }
+            
+            gemmes -= chestCost;
+            localStorage.setItem('pixelquest_gemmes', gemmes.toString());
+            
+            // Tirer un objet aléatoire
+            const item = getRandomChestItem();
+            
+            // Ajouter à l'inventaire
+            addToInventory(item);
+            
+            // Augmenter le coût
+            chestCost += 30;
+            localStorage.setItem('pixelquest_chest_cost', chestCost.toString());
+            
+            // Afficher le résultat
+            displayChestResult(item);
+            
+            // Mettre à jour l'affichage
+            document.getElementById('chest-cost').innerText = chestCost;
+            renderBoutique();
+            
+            // Notifier le parent
+            if(window.opener) {
+                window.opener.postMessage({type: 'chest_opened', item: item}, '*');
+            }
+        }
+        
+        function getRandomChestItem() {
+            const allItems = [
+                {nom: "Épée rouillée", att: 3, r:"commun"},
+                {nom: "Casque simple", pv: 8, r:"commun"},
+                {nom: "Anneau magique usé", def: -0.1, r:"commun"},
+                {nom: "Lance", att: 4, r:"commun"},
+                {nom: "Bâton magique", att: 2, regen: 1, r:"commun"},
+                {nom: "Buff commun", att: 2, pv: 5, def: -0.05, r:"commun"},
+                {nom: "Bouclier", def: -0.1, pv: 5, r:"commun"},
+                {nom: "Buff evo commun", att: 4, pv: 10, regen: 2, def: -0.1, r:"commun"},
+                {nom: "Épée fine", att: 8, r:"rare"},
+                {nom: "Armure renforcée", def: -0.2, pv: 10, r:"rare"},
+                {nom: "Amulette vitale", pv: 20, r:"rare"},
+                {nom: "Anneau de pouvoir", pv: 10, att: 5, r:"rare"},
+                {nom: "Colt 1911", att: 10, r:"rare"},
+                {nom: "Buff rare", att: 4, pv: 10, def: -0.1, r:"rare"},
+                {nom: "M4", att: 18, r:"rare"},
+                {nom: "Buff evo rare", att: 8, pv: 20, def: -0.2, regen: 4, r:"rare"},
+                {nom: "Livre tactique", att: 8, intelligence: 5, r:"rare"},
+                {nom: "Cerveau moisi", intelligence: 1, r:"intel"},
+                {nom: "Livre pas ouf", intelligence: 2, r:"intel"},
+                {nom: "Livre carré", intelligence: 5, r:"intel"},
+                {nom: "Grimoire qui date", intelligence: 3, r:"intel"},
+                {nom: "Livre du savoir", intelligence: 7, r:"intel"},
+                {nom: "Lame mythique", att: 95, r:"legendaire"},
+                {nom: "Armure enchantée", pv: 70, def: -0.25, regen: 10, r:"legendaire"},
+                {nom: "Coeur du héros", pv: 50, capa: "vol_de_vie", r:"legendaire"},
+                {nom: "Carapace absolue", pv: 70, capa: "reduc_degats", r:"legendaire"},
+                {nom: "Lames frénétiques", att: 45, capa: "multi_attaque", r:"legendaire"},
+                {nom: "Buff legendaire", att: 30, pv: 50, def: -0.3, regen: 5, r:"legendaire"},
+                {nom: "Savoir continu", intelligence: 8, capa: "ia", r:"legendaire"},
+                {nom: "Bouclier invincible", pv: 120, def: -0.5, capa: "invincible_3tour", r:"ultra"},
+                {nom: "Gantelet de puissance", att: 90, capa: "crit_25", r:"ultra"},
+                {nom: "Tenu de camouflage ultime", pv: 80, def: -0.4, capa: "esquive_total", r:"ultra"},
+                {nom: "Buff ultime", pv: 125, def: -0.6, att: 50, regen: 15, r:"ultra"},
+                {nom: "Source du savoir", intelligence: 12, capa: "raisonnement", r:"ultra"},
+                {nom: "Negociant", capa: "investissement", r:"ultra"},
+                {nom: "(Mahe) Rat divin", capa: "loot+", r:"cheat"},
+                {nom: "Buff divin", pv: 300, att: 150, def: -1, regen: 30, r:"cheat"},
+                {nom: "Lumiere divine", att: 100, capa: "extermination", r:"cheat"},
+                {nom: "Miroir de l'âme", capa: "reflect_50", r:"cheat"}
+            ];
+            
+            const rand = Math.random() * 100;
+            let rarity;
+            
+            if(rand < 50) rarity = "commun";
+            else if(rand < 72) rarity = "rare";
+            else if(rand < 92) rarity = "intel";
+            else if(rand < 97.5) rarity = "legendaire";
+            else if(rand < 99.5) rarity = "ultra";
+            else rarity = "cheat";
+            
+            const pool = allItems.filter(i => i.r === rarity);
+            return pool[Math.floor(Math.random() * pool.length)];
+        }
+        
+        function addToInventory(item) {
+            let count = inventory.filter(i => i.nom === item.nom).length;
+            let maxCount = ["commun", "rare", "intel"].includes(item.r) ? 3 : 1;
+            
+            if(count < maxCount) {
+                inventory.push(item);
+                localStorage.setItem('pixelquest_inventory', JSON.stringify(inventory));
+            }
+        }
+        
+        function displayChestResult(item) {
+            const colors = {
+                commun: "#95a5a6",
+                rare: "#3498db",
+                intel: "#2ecc71",
+                legendaire: "#f1c40f",
+                ultra: "#9b59b6",
+                cheat: "#e74c3c"
+            };
+            
+            const resultDiv = document.getElementById('chest-result');
+            resultDiv.innerHTML = `
+                <div style="animation: fadeIn 0.5s; padding: 20px; background: rgba(0,0,0,0.3); border: 2px solid ${colors[item.r]}; border-radius: 10px; display: inline-block;">
+                    <div style="font-size: 2em; margin-bottom: 10px;">✨</div>
+                    <div style="color: ${colors[item.r]}; font-size: 1.3em; font-weight: bold; margin-bottom: 5px;">
+                        ${item.nom}
+                    </div>
+                    <div style="color: #bbb; font-size: 0.9em; text-transform: uppercase;">
+                        ${item.r}
+                    </div>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                resultDiv.innerHTML = '';
+            }, 3000);
+        }
 
         // Initialisation
         renderBoutique();
