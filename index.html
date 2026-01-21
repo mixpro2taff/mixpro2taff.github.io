@@ -91,19 +91,121 @@
         .btn:disabled { opacity: 0.3; cursor: not-allowed; }
         .codex-tab-btn { position: fixed; bottom: 20px; right: 20px; border-color: var(--accent); color: var(--accent); }
         .log-entry { margin-bottom: 5px; border-left: 2px solid #333; padding-left: 10px; font-size: 0.9em; }
+        #collection-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.98);
+    z-index: 3000;
+    padding: 40px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+.collection-card {
+    background: var(--card-bg);
+    border: 2px solid #333;
+    padding: 12px;
+    width: 180px;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    opacity: 0.3;
+    filter: grayscale(100%);
+}
+
+.collection-card.owned {
+    opacity: 1;
+    filter: grayscale(0%);
+}
+
+.collection-card.owned:hover {
+    transform: translateY(-5px);
+    background: #000;
+}
+
+.collection-card.selected {
+    opacity: 1 !important;
+    filter: grayscale(0%) !important;
+}
+
+.collection-card.selected.rarity-commun {
+    border-color: #95a5a6;
+    box-shadow: 0 0 20px #95a5a6;
+}
+
+.collection-card.selected.rarity-rare {
+    border-color: #3498db;
+    box-shadow: 0 0 20px #3498db;
+}
+
+.collection-card.selected.rarity-legendaire {
+    border-color: #f1c40f;
+    box-shadow: 0 0 20px #f1c40f;
+}
+
+.collection-card.selected.rarity-ultra {
+    border-color: #9b59b6;
+    box-shadow: 0 0 20px #9b59b6;
+}
+
+.collection-card.selected.rarity-intel {
+    border-color: #2ecc71;
+    box-shadow: 0 0 20px #2ecc71;
+}
+
+.collection-card.selected.rarity-cheat {
+    border-color: #e74c3c;
+    box-shadow: 0 0 25px #e74c3c;
+}
+
+.card-count {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 0.7em;
+    font-weight: bold;
+}
+
+.selected-indicator {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: var(--accent);
+    color: #000;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 0.7em;
+    font-weight: bold;
+}
     </style>
 </head>
 <body>
 
     <div id="start-menu">
-        <h1 style="color: var(--accent); font-size: 4em;">PIXEL QUEST</h1>
-        <p>SÉLECTIONNE TA DIFFICULTÉ</p>
-        <div style="margin-top: 20px;">
-            <button class="btn" onclick="startGame('facile')">FACILE (Or x1.5)</button>
-            <button class="btn" onclick="startGame('normal')" style="margin: 0 15px;">NORMAL</button>
-            <button class="btn" onclick="startGame('difficile')">DIFFICILE (Ennemis x1.5)</button>
-        </div>
+    <h1 style="color: var(--accent); font-size: 4em;">PIXEL QUEST</h1>
+    <p>SÉLECTIONNE TA DIFFICULTÉ</p>
+    <div style="margin-top: 20px;">
+        <button class="btn" onclick="startGame('facile')">FACILE (Or x1.5)</button>
+        <button class="btn" onclick="startGame('normal')" style="margin: 0 15px;">NORMAL</button>
+        <button class="btn" onclick="startGame('difficile')">DIFFICILE (Ennemis x1.5)</button>
     </div>
+    <div style="margin-top: 30px;">
+        <button class="btn" onclick="openCollection()" style="border-color: #9b59b6; color: #9b59b6;">
+            📦 COLLECTION (<span id="selected-count">0</span>/3)
+        </button>
+    </div>
+</div>
 
     <div class="stats-bar">
         <div class="stat-item"><div class="stat-label">Jour</div><div id="stat-jour" class="stat-value">1</div></div>
@@ -321,6 +423,9 @@ function checkDailyGems() {
 // UI
 // ======================
 function startGame(mode) {
+    selectedCollectionItems = [];
+    updateCollectionCount();
+    
     if(mode === 'facile') diffSetting = { name: 'FACILE', gold: 1.5, enemy: 1, boss: 1 };
     if(mode === 'normal') diffSetting = { name: 'NORMAL', gold: 1, enemy: 1, boss: 1 };
     if(mode === 'difficile') diffSetting = { name: 'DIFFICILE', gold: 1, enemy: 1.5, boss: 1.25 };
@@ -1470,6 +1575,189 @@ window.addEventListener('message', function(event) {
         updateUI();
     }
 });
+    // ======================
+// COLLECTION D'OBJETS
+// ======================
+let selectedCollectionItems = [];
+
+function openCollection() {
+    document.getElementById('collection-overlay').style.display = 'block';
+    renderCollection();
+}
+
+function closeCollection() {
+    document.getElementById('collection-overlay').style.display = 'none';
+}
+
+function renderCollection() {
+    const grid = document.getElementById('collection-grid');
+    grid.innerHTML = '';
+    
+    const inventory = JSON.parse(localStorage.getItem('pixelquest_inventory') || '[]');
+    
+    // Compter les objets par nom
+    const itemCounts = {};
+    inventory.forEach(item => {
+        itemCounts[item.nom] = (itemCounts[item.nom] || 0) + 1;
+    });
+    
+    // Créer un set de tous les objets possibles
+    const allPossibleItems = [...oCommuns, ...oRares, ...oLeg, ...oUltra, ...oIntel, ...oCheat];
+    
+    // Grouper par rareté
+    const categories = [
+        {title: "COMMUNS", items: oCommuns, color: "#95a5a6"},
+        {title: "RARES", items: oRares, color: "#3498db"},
+        {title: "INTELLIGENCE", items: oIntel, color: "#2ecc71"},
+        {title: "LÉGENDAIRES", items: oLeg, color: "#f1c40f"},
+        {title: "ULTRA", items: oUltra, color: "#9b59b6"},
+        {title: "CHEAT", items: oCheat, color: "#e74c3c"}
+    ];
+    
+    categories.forEach(cat => {
+        const section = document.createElement('div');
+        section.style.width = '100%';
+        section.style.marginBottom = '30px';
+        section.innerHTML = `<h2 style="color:${cat.color}; border-bottom: 2px solid ${cat.color}; padding-bottom: 10px;">${cat.title}</h2>`;
+        
+        const cardsDiv = document.createElement('div');
+        cardsDiv.className = 'cards-container';
+        cardsDiv.style.marginTop = '15px';
+        
+        cat.items.forEach(item => {
+            const count = itemCounts[item.nom] || 0;
+            const maxCount = ["commun", "rare", "intel"].includes(item.r) ? 3 : 1;
+            
+            // Créer les emplacements
+            for(let i = 0; i < maxCount; i++) {
+                const card = createCollectionCard(item, i < count, i);
+                cardsDiv.appendChild(card);
+            }
+        });
+        
+        section.appendChild(cardsDiv);
+        grid.appendChild(section);
+    });
+    
+    updateCollectionCount();
+}
+
+function createCollectionCard(item, isOwned, slotIndex) {
+    const card = document.createElement('div');
+    const itemKey = `${item.nom}-${slotIndex}`;
+    const isSelected = selectedCollectionItems.some(sel => sel.key === itemKey);
+    
+    card.className = `collection-card rarity-${item.r}`;
+    if(isOwned) card.classList.add('owned');
+    if(isSelected) card.classList.add('selected');
+    
+    let stats = '';
+    if(item.att) stats += `⚔️ Atk: <span>+${item.att}</span><br>`;
+    if(item.pv) stats += `❤️ PV: <span>+${item.pv}</span><br>`;
+    if(item.def) stats += `🛡️ Def: <span>${item.def}</span><br>`;
+    if(item.intelligence) stats += `🧠 Int: <span>+${item.intelligence}</span><br>`;
+    if(item.regen) stats += `✨ Reg: <span>+${item.regen}</span><br>`;
+    
+    card.innerHTML = `
+        ${isSelected ? '<div class="selected-indicator">✓</div>' : ''}
+        ${isOwned && !isSelected ? `<div class="card-count">${slotIndex + 1}</div>` : ''}
+        <div class="card-name">${item.nom}</div>
+        <div class="card-stats">${stats || '<em style="color:#666">Capacité spéciale</em>'}</div>
+        ${item.capa ? `<div class="card-capa">★ ${item.capa}</div>` : ''}
+    `;
+    
+    if(isOwned) {
+        card.onclick = () => toggleCollectionSelection(item, itemKey);
+    }
+    
+    return card;
+}
+
+function toggleCollectionSelection(item, itemKey) {
+    const index = selectedCollectionItems.findIndex(sel => sel.key === itemKey);
+    
+    if(index > -1) {
+        // Désélectionner
+        selectedCollectionItems.splice(index, 1);
+    } else {
+        // Sélectionner
+        if(selectedCollectionItems.length >= 3) {
+            alert('Tu peux sélectionner maximum 3 objets !');
+            return;
+        }
+        selectedCollectionItems.push({ key: itemKey, item: item });
+    }
+    
+    renderCollection();
+}
+
+function updateCollectionCount() {
+    const count = selectedCollectionItems.length;
+    document.getElementById('collection-selected-count').innerText = count;
+    document.getElementById('selected-count').innerText = count;
+}
+
+function startWithSelectedItems() {
+    // Sauvegarder les objets sélectionnés
+    const items = selectedCollectionItems.map(sel => sel.item);
+    localStorage.setItem('pixelquest_selected_items', JSON.stringify(items));
+    
+    // Fermer la collection et afficher le menu de difficulté
+    closeCollection();
+    
+    // Si aucun objet sélectionné, message optionnel
+    if(items.length === 0) {
+        const confirm = window.confirm("Tu n'as sélectionné aucun objet. Commencer quand même ?");
+        if(!confirm) return;
+    }
+}
 </script>
+    <div id="collection-overlay">
+    <div style="display:flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); padding-bottom: 15px; margin-bottom: 20px;">
+        <h1 style="margin:0; color:var(--accent);">📦 COLLECTION D'OBJETS</h1>
+        <button class="btn" onclick="closeCollection()">FERMER ✖</button>
+    </div>
+    
+    <p style="color: #bbb; margin-bottom: 20px; text-align: center;">
+        Sélectionne jusqu'à 3 objets pour commencer ta partie. Les cartes grisées n'ont pas encore été obtenues.
+    </p>
+    
+    <div style="text-align: center; margin-bottom: 20px;">
+        <span style="color: var(--accent); font-size: 1.2em; font-weight: bold;">
+            Objets sélectionnés : <span id="collection-selected-count">0</span> / 3
+        </span>
+    </div>
+    
+    <div id="collection-grid" class="cards-container" style="margin-bottom: 30px;"></div>
+    
+    <div style="text-align: center;">
+        <button class="btn" onclick="startWithSelectedItems()" style="font-size: 1.2em; padding: 15px 40px; border-color: var(--accent); color: var(--accent);">
+            COMMENCER L'AVENTURE ⚔️
+        </button>
+    </div>
+</div><div id="collection-overlay">
+    <div style="display:flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); padding-bottom: 15px; margin-bottom: 20px;">
+        <h1 style="margin:0; color:var(--accent);">📦 COLLECTION D'OBJETS</h1>
+        <button class="btn" onclick="closeCollection()">FERMER ✖</button>
+    </div>
+    
+    <p style="color: #bbb; margin-bottom: 20px; text-align: center;">
+        Sélectionne jusqu'à 3 objets pour commencer ta partie. Les cartes grisées n'ont pas encore été obtenues.
+    </p>
+    
+    <div style="text-align: center; margin-bottom: 20px;">
+        <span style="color: var(--accent); font-size: 1.2em; font-weight: bold;">
+            Objets sélectionnés : <span id="collection-selected-count">0</span> / 3
+        </span>
+    </div>
+    
+    <div id="collection-grid" class="cards-container" style="margin-bottom: 30px;"></div>
+    
+    <div style="text-align: center;">
+        <button class="btn" onclick="startWithSelectedItems()" style="font-size: 1.2em; padding: 15px 40px; border-color: var(--accent); color: var(--accent);">
+            COMMENCER L'AVENTURE ⚔️
+        </button>
+    </div>
+</div>
 </body>
 </html>
