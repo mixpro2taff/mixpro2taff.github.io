@@ -1579,10 +1579,31 @@ window.addEventListener('message', function(event) {
 let selectedCollectionItems = [];
 
 function openCollection() {
+    // CHARGER les objets déjà sélectionnés depuis localStorage
+    const savedItems = JSON.parse(localStorage.getItem('pixelquest_selected_items') || '[]');
+    const inventory = JSON.parse(localStorage.getItem('pixelquest_inventory') || '[]');
+    
+    // Reconstruire selectedCollectionItems avec les clés
+    selectedCollectionItems = [];
+    savedItems.forEach(savedItem => {
+        // Trouver l'index de cet objet dans l'inventaire
+        let slotIndex = 0;
+        inventory.forEach((invItem, idx) => {
+            if(invItem.nom === savedItem.nom) {
+                if(selectedCollectionItems.filter(s => s.item.nom === savedItem.nom).length === slotIndex) {
+                    selectedCollectionItems.push({
+                        key: `${savedItem.nom}-${slotIndex}`,
+                        item: savedItem
+                    });
+                }
+                slotIndex++;
+            }
+        });
+    });
+    
     document.getElementById('collection-overlay').style.display = 'block';
     renderCollection();
 }
-
 function closeCollection() {
     document.getElementById('collection-overlay').style.display = 'none';
 }
