@@ -423,14 +423,11 @@ function checkDailyGems() {
 // UI
 // ======================
 function startGame(mode) {
-    
     if(mode === 'facile') diffSetting = { name: 'FACILE', gold: 1.5, enemy: 1, boss: 1 };
     if(mode === 'normal') diffSetting = { name: 'NORMAL', gold: 1, enemy: 1, boss: 1 };
     if(mode === 'difficile') diffSetting = { name: 'DIFFICILE', gold: 1, enemy: 1.5, boss: 1.25 };
     
-    // Charger les gemmes
     joueur.gemmes = parseInt(localStorage.getItem('pixelquest_gemmes') || '0');
-
     checkDailyGems();
     
     // Appliquer les upgrades permanents
@@ -440,13 +437,13 @@ function startGame(mode) {
     joueur.or += permanentUpgrades.or;
     joueur.regen += permanentUpgrades.regen;
 
-        // Charger les objets sélectionnés
+    // CHARGER ET APPLIQUER LES OBJETS SÉLECTIONNÉS
     const selectedItems = JSON.parse(localStorage.getItem('pixelquest_selected_items') || '[]');
-    selectedItems.forEach(item => {
-        appliquer_objet(item);
-    });
     if(selectedItems.length > 0) {
-        log("🎁 Objets de départ appliqués : " + selectedItems.length + " objet(s)", "#9b59b6");
+        log("🎁 Objets de départ :", "#9b59b6");
+        selectedItems.forEach(item => {
+            appliquer_objet(item);
+        });
     }
     
     document.getElementById('start-menu').style.display = 'none';
