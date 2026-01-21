@@ -153,6 +153,9 @@
         let permanentUpgrades = JSON.parse(localStorage.getItem('pixelquest_upgrades') || '{"pv":0,"att":0,"def":0,"or":0,"regen":0}');
         let upgradesCost = JSON.parse(localStorage.getItem('pixelquest_costs') || '{"pv":10,"att":10,"def":10,"or":10,"regen":10}');
         let gemmes = parseInt(localStorage.getItem('pixelquest_gemmes') || '0');
+        let gemmes = parseInt(localStorage.getItem('pixelquest_gemmes') || '0');
+        let chestCost = parseInt(localStorage.getItem('pixelquest_chest_cost') || '10');
+        let inventory = JSON.parse(localStorage.getItem('pixelquest_inventory') || '[]');
 
         // Configuration des améliorations
         const upgrades = [
