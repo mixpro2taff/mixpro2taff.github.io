@@ -336,6 +336,15 @@ function startGame(mode) {
     joueur.def -= permanentUpgrades.def;
     joueur.or += permanentUpgrades.or;
     joueur.regen += permanentUpgrades.regen;
+
+        // Charger les objets sélectionnés
+    const selectedItems = JSON.parse(localStorage.getItem('pixelquest_selected_items') || '[]');
+    selectedItems.forEach(item => {
+        appliquer_objet(item);
+    });
+    if(selectedItems.length > 0) {
+        log("🎁 Objets de départ appliqués : " + selectedItems.length + " objet(s)", "#9b59b6");
+    }
     
     document.getElementById('start-menu').style.display = 'none';
     log("⚙️ Difficulté : " + diffSetting.name, "#f1c40f");
