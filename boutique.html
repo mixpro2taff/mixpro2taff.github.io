@@ -124,7 +124,6 @@
     </div>
 
 <div class="upgrades-container" id="upgrades-container"></div>
-    
     <hr style="border: 0; border-top: 2px solid #9b59b6; margin: 40px 0;">
     
     <h2 style="color: #9b59b6; text-align: center; margin-bottom: 20px;">📦 COFFRES MYSTÉRIEUX</h2>
@@ -152,7 +151,6 @@
         // Chargement des données depuis localStorage
         let permanentUpgrades = JSON.parse(localStorage.getItem('pixelquest_upgrades') || '{"pv":0,"att":0,"def":0,"or":0,"regen":0}');
         let upgradesCost = JSON.parse(localStorage.getItem('pixelquest_costs') || '{"pv":10,"att":10,"def":10,"or":10,"regen":10}');
-        let gemmes = parseInt(localStorage.getItem('pixelquest_gemmes') || '0');
         let gemmes = parseInt(localStorage.getItem('pixelquest_gemmes') || '0');
         let chestCost = parseInt(localStorage.getItem('pixelquest_chest_cost') || '10');
         let inventory = JSON.parse(localStorage.getItem('pixelquest_inventory') || '[]');
