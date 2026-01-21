@@ -451,6 +451,7 @@ function checkDailyGems() {
 // UI
 // ======================
 function startGame(mode) {
+    document.getElementById('collection-overlay').style.display = 'none';
     if(mode === 'facile') diffSetting = { name: 'FACILE', gold: 1.5, enemy: 1, boss: 1 };
     if(mode === 'normal') diffSetting = { name: 'NORMAL', gold: 1, enemy: 1, boss: 1 };
     if(mode === 'difficile') diffSetting = { name: 'DIFFICILE', gold: 1, enemy: 1.5, boss: 1.25 };
