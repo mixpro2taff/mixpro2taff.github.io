@@ -340,16 +340,16 @@ const ennemisBase = {
     assassin: {nom: "Assassin", pv: 80, att: 15, def: 2, or: 20},
     mage: {nom: "Mage noir", pv: 100, att: 30, def: 1, or: 30},
     berserker: {nom: "Berserker", pv: 120, att: 15, def: 1.5, or: 20},
-    paladin: {nom: "Paladin corrompu", pv: 250, att: 10, def: 0.6, or: 20},
-    necromancien: {nom: "Nécromancien", pv: 200, att: 20, def: 1, or: 30},
+    paladin: {nom: "Paladin corrompu", pv: 250, att: 10, def: 0.6, or: 20, gemmes: 1},
+    necromancien: {nom: "Nécromancien", pv: 200, att: 20, def: 1, or: 30, gemmes: 1},
     dragon: {nom: "Dragon sauvage", pv: 400, att: 40, def: 1.2, or: 50, gemmes: 2},
     titan: {nom: "Titan de pierre", pv: 500, att: 35, def: 0.8, or: 60, gemmes: 2},
     boss10: {nom: "Seigneur de fer", pv: 450, att: 25, def: 1, or: 30, gemmes: 1},
-    boss20: {nom: "Roi du Nord", pv: 2500, att: 80, def: 0.5, or: 40, gemmes: 2},
-    boss30: {nom: "Roi du monde", pv: 7000, att: 250, def: 0.3, or: 60, gemmes: 4},
-    boss40: {nom: "Prince solaire", pv: 12000, att: 450, def: 0.20, or: 80, gemmes: 6},
-    boss50: {nom: "Roi de la galaxie", pv: 20000, att: 600, def: 0.10, or: 90, gemmes: 9},
-    boss60: {nom: "Dictateur inter-galaxie", pv: 35000, att: 900, def: 0.1, or: 100, gemmes: 12}
+    boss20: {nom: "Roi du Nord", pv: 2500, att: 80, def: 0.5, or: 40, gemmes: 3},
+    boss30: {nom: "Roi du monde", pv: 5500, att: 250, def: 0.3, or: 60, gemmes: 6},
+    boss40: {nom: "Prince solaire", pv: 12000, att: 450, def: 0.20, or: 80, gemmes: 9},
+    boss50: {nom: "Roi de la galaxie", pv: 20000, att: 600, def: 0.10, or: 90, gemmes: 12},
+    boss60: {nom: "Dictateur inter-galaxie", pv: 35000, att: 900, def: 0.1, or: 100, gemmes: 18}
 };
 
 // ======================
@@ -407,12 +407,12 @@ function checkDailyGems() {
     }
     
     if(lastClaim !== today) {
-        joueur.gemmes += 8;
+        joueur.gemmes += 10;
         localStorage.setItem('pixelquest_gemmes', joueur.gemmes.toString());
         localStorage.setItem('pixelquest_last_daily_claim', today);
         localStorage.setItem('pixelquest_last_timestamp', currentTimestamp.toString());
         
-        log("🎁 BONUS QUOTIDIEN : +8 💎 gemmes !", "#9b59b6");
+        log("🎁 BONUS QUOTIDIEN : +10 💎 gemmes !", "#9b59b6");
         updateUI();
     } else {
         localStorage.setItem('pixelquest_last_timestamp', currentTimestamp.toString());
