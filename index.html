@@ -423,8 +423,6 @@ function checkDailyGems() {
 // UI
 // ======================
 function startGame(mode) {
-    selectedCollectionItems = [];
-    updateCollectionCount();
     
     if(mode === 'facile') diffSetting = { name: 'FACILE', gold: 1.5, enemy: 1, boss: 1 };
     if(mode === 'normal') diffSetting = { name: 'NORMAL', gold: 1, enemy: 1, boss: 1 };
