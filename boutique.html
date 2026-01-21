@@ -123,7 +123,30 @@
         <p>Obtenez des gemmes en battant les Boss et les ennemis Dragon/Titan</p>
     </div>
 
-    <div class="upgrades-container" id="upgrades-container"></div>
+<div class="upgrades-container" id="upgrades-container"></div>
+    
+    <hr style="border: 0; border-top: 2px solid #9b59b6; margin: 40px 0;">
+    
+    <h2 style="color: #9b59b6; text-align: center; margin-bottom: 20px;">📦 COFFRES MYSTÉRIEUX</h2>
+    <p style="color: #bbb; margin-bottom: 20px; text-align: center;">
+        Ouvre des coffres pour obtenir des objets aléatoires à utiliser en début de partie !
+    </p>
+    
+    <div style="text-align: center; margin-bottom: 30px;">
+        <div style="background: rgba(155, 89, 182, 0.1); border: 1px solid #9b59b6; padding: 20px; display: inline-block; border-radius: 5px;">
+            <div style="font-size: 3em; margin-bottom: 10px;">📦</div>
+            <div style="font-size: 1.2em; margin-bottom: 10px; color: #fff;">Coffre Mystérieux</div>
+            <div style="font-size: 0.85em; color: #bbb; margin-bottom: 15px;">
+                50% Commun | 22% Rare | 20% Intel<br>
+                5.5% Légendaire | 2% Ultra | 0.5% Cheat
+            </div>
+            <button class="btn" id="btn-buy-chest" onclick="buyChest()" style="border-color: #9b59b6; color: #9b59b6; font-size: 1.1em;">
+                💎 <span id="chest-cost">10</span> Gemmes
+            </button>
+        </div>
+    </div>
+    
+    <div id="chest-result" style="text-align: center; margin-top: 20px; min-height: 50px;"></div>
 
     <script>
         // Chargement des données depuis localStorage
