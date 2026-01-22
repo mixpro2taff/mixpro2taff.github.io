@@ -263,6 +263,8 @@ let joueur = { intelligence: 0, pv: 100, att: 8, def: 3, or: 40, regen: 20, capa
 let permanentUpgrades = JSON.parse(localStorage.getItem('pixelquest_upgrades') || '{"pv":0,"att":0,"def":0,"or":0,"regen":0}');
 let upgradesCost = JSON.parse(localStorage.getItem('pixelquest_costs') || '{"pv":10,"att":10,"def":10,"or":10,"regen":10}');
 // CHARGER LA SÉLECTION D'OBJETS AU DÉMARRAGE DE LA PAGE
+// CHARGER LA SÉLECTION D'OBJETS AU DÉMARRAGE DE LA PAGE
+
 function loadSelectedItems() {
     const savedItems = JSON.parse(localStorage.getItem('pixelquest_selected_items') || '[]');
     const inventory = JSON.parse(localStorage.getItem('pixelquest_inventory') || '[]');
@@ -287,8 +289,10 @@ function loadSelectedItems() {
     }
 }
 
-// Charger au démarrage
-loadSelectedItems();
+// Charger au démarrage quand le DOM est prêt
+window.addEventListener('DOMContentLoaded', function() {
+    loadSelectedItems();
+});
 
 const oCommuns = [
     {nom: "Épée rouillée", att: 3, r:"commun"},
