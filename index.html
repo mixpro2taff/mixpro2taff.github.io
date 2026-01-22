@@ -373,8 +373,10 @@ const ennemisBase = {
     berserker: {nom: "Berserker", pv: 120, att: 15, def: 1.5, or: 20},
     paladin: {nom: "Paladin corrompu", pv: 250, att: 10, def: 0.6, or: 20, gemmes: 1},
     necromancien: {nom: "Nécromancien", pv: 200, att: 20, def: 1, or: 30, gemmes: 1},
-    dragon: {nom: "Dragon sauvage", pv: 400, att: 40, def: 1.2, or: 50, gemmes: 2},
-    titan: {nom: "Titan de pierre", pv: 500, att: 35, def: 0.8, or: 60, gemmes: 2},
+    dragon: {nom: "Dragon sauvage", pv: 400, att: 40, def: 1.2, or: 40, gemmes: 2},
+    titan: {nom: "Titan de pierre", pv: 500, att: 35, def: 0.8, or: 40, gemmes: 2},
+    creature : {nom : "Créature démoniaque", pv: 1000, att: 100, def: 0.5, or: 50, gemmes: 4},
+    demon : {nom : "Démon", pv: 1500, att: 150, def:0.5, or:60, gemmes: 6},
     boss10: {nom: "Seigneur de fer", pv: 450, att: 25, def: 1, or: 30, gemmes: 1},
     boss20: {nom: "Roi du Nord", pv: 2500, att: 80, def: 0.5, or: 40, gemmes: 3},
     boss30: {nom: "Roi du monde", pv: 5500, att: 250, def: 0.3, or: 60, gemmes: 6},
@@ -669,7 +671,22 @@ function event_coffre_plus() {
         }
     });
 }
+function event_gemmes() {
+    log("En explorant les environs tu trouve une grotte");
+    log("Dans la grotte, il y a des diamants, tu décide d'en extraire");
+    log("Tu réussit a en prendre le maximum dans tes sac...");
+    log("💎 Tu obtient 10 gemmes");
+    joueur.gemmes += 10;
+}
 
+function event_gemmes_plus() {
+    log("En explorant les environs tu trouve une grotte");
+    log("La grotte est remplit de diamant, tu décide d'en extraire");
+    log("Tu réussit a en prendre le maximum dans tes sac...");
+    log("💎 Tu obtient 20 gemmes");
+    joueur.gemmes += 20;
+}
+    
 function event_pari() {
     log("🎲 Tu tombes sur un groupe de voyageurs jouant à des jeux d'argent.");
     log("L'ambiance est tendue. L'un d'eux te lance un défi...");
@@ -967,6 +984,8 @@ function getEventsPossibles() {
     let cha = ennemisBase.champion;
     let drag = ennemisBase.dragon;
     let tit = ennemisBase.titan;
+    let crea = ennemisBase.creature;
+    let dem =  ennemisBase.demon;
 
     if(jour >= 40) {
         vol = ennemi_boss(vol);
@@ -979,6 +998,8 @@ function getEventsPossibles() {
         mag = ennemi_boss(mag);
         drag = ennemi_boss(drag);
         tit = ennemi_boss(tit);
+        crea = ennemi_elite2(crea);
+        dem = ennemi_elite(dem);
     } else if(jour >= 30) {
         vol = ennemi_elite3(vol);
         gue = ennemi_elite3(gue);
@@ -990,6 +1011,8 @@ function getEventsPossibles() {
         mag = ennemi_elite3(mag);
         drag = ennemi_elite3(drag);
         tit = ennemi_elite3(tit);
+        crea = ennemi_elite(crea);
+        
     } else if(jour >= 20) {
         vol = ennemi_elite2(vol);
         gue = ennemi_elite2(gue);
@@ -1042,6 +1065,8 @@ function getEventsPossibles() {
         event_enigme,
         event_bibliotheque,
         event_auberge,
+        event_gemmes,
+        event_gemmes_plus,
     ];
 
     if(jour >= 5) {
@@ -1062,6 +1087,14 @@ function getEventsPossibles() {
     if(jour >= 10) {
         events.push(() => combat(drag));
         events.push(() => combat(tit));
+    }
+    
+    if(jour>= 20) {
+        events.push(() => combat(crea));
+    }
+
+    if(jour>= 30) {
+        events.push(() => combat(dem));
     }
 
     return events;
@@ -1294,7 +1327,7 @@ function renderEventsCodex() {
             nom: "Voleur",
             desc: "Ennemi rapide",
             icon: "🗡️",
-            stats: "PV: 60 | Att: 6 | Def: 2 | Or: 1",
+            stats: "PV: 60 | Att: 6 | Def: 2 | Or: 10",
             proba: "Très Fréquent",
             color: "#e74c3c"
         },
@@ -1358,7 +1391,7 @@ function renderEventsCodex() {
             nom: "Dragon sauvage",
             desc: "Créature mythique",
             icon: "🐉",
-            stats: "PV: 400 | Att: 40 | Def: 1.2 | Or: 50",
+            stats: "PV: 400 | Att: 40 | Def: 1.2 | Or: 40",
             proba: "J10+ Rare",
             color: "#e74c3c"
         },
@@ -1366,10 +1399,26 @@ function renderEventsCodex() {
             nom: "Titan de pierre",
             desc: "Colosse antique",
             icon: "🗿",
-            stats: "PV: 500 | Att: 35 | Def: 0.8 | Or: 60",
+            stats: "PV: 500 | Att: 35 | Def: 0.8 | Or: 40",
             proba: "J10+ Rare",
             color: "#95a5a6"
         },
+        {
+            nom: "Créature démoniaque",
+            desc: "Animal des démons",
+            icon: "🦇",
+            stats: "PV: 1000 | Att: 100 | Def: 0.5 | Or: 50",
+            proba: "J20+ Rare",
+            color: "#d63031",
+        }
+        {
+            nom: "Démon",
+            desc: "Ce que tu n'as pas envie de recontrer",
+            icon: "👹",
+            stats: "PV: 1500 | Att: 150 | Def: 0.5 | Or: 60",
+            proba: "J30+ Rare",
+            color: "#c0392b",
+        }
         {
             nom: "Boss J10",
             desc: "Seigneur de fer",
@@ -1390,7 +1439,7 @@ function renderEventsCodex() {
             nom: "Boss J30",
             desc: "Roi du monde",
             icon: "🌍",
-            stats: "PV: 7000 | Att: 250 | Or: 60",
+            stats: "PV: 5500 | Att: 250 | Or: 60",
             proba: "J30",
             color: "#27ae60"
         },
