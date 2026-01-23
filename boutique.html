@@ -250,9 +250,6 @@
             chestCost += 30;
             localStorage.setItem('pixelquest_chest_cost', chestCost.toString());
             
-            // Afficher le résultat
-            displayChestResult(item);
-            
             // Mettre à jour l'affichage
             document.getElementById('chest-cost').innerText = chestCost;
             renderBoutique();
