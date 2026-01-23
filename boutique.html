@@ -306,14 +306,14 @@
                 {nom: "Miroir de l'âme", capa: "reflect_50", r:"cheat"}
             ];
             
-            const rand = Math.random() * 100;
+            const rand = Math.random() * 1000;
             let rarity;
             
-            if(rand < 50) rarity = "commun";
-            else if(rand < 72) rarity = "rare";
-            else if(rand < 92) rarity = "intel";
-            else if(rand < 97.5) rarity = "legendaire";
-            else if(rand < 99.5) rarity = "ultra";
+            if(rand < 500) rarity = "commun";
+            else if(rand < 720) rarity = "rare";
+            else if(rand < 920) rarity = "intel";
+            else if(rand < 975) rarity = "legendaire";
+            else if(rand < 995) rarity = "ultra";
             else rarity = "cheat";
             
             const pool = allItems.filter(i => i.r === rarity);
