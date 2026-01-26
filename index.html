@@ -895,9 +895,9 @@ function combat(eBase, isBoss = false) {
     log("⚔️ COMBAT : " + en.nom, "#e74c3c");
     let pvE = en.pv;
     let inv = joueur.capas.includes("invincible_3tour") ? 3 : 0;
-    if (joueur.capas.includes("phase")) and (randint(1,5) == 1 {
-        pvE -= 999999
-        log("coup critique : capa phase active")
+    if (joueur.capas.includes("phase") && randint(1,5) === 1) {
+        pvE -= 999999;
+        log("coup critique : capa phase active");
     }
     while(joueur.pv > 0 && pvE > 0) {
         if(pvE > 0) {
