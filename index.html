@@ -622,7 +622,25 @@ function event_rencontre() {
     joueur.pv += 10;
     updateUI();
 }
-
+function event_incroyable() {
+    log("Tu trouve une ruine ancienne abritant des trésors caché...");
+    log("Tu décide de rentrer");
+    let ruine = randint(1,3);
+    if (ruine > 1) {
+        log("Le trésor est bien mais tu espérait mieux... +10 or et des objets");
+        loot_du_jour();
+        joueur.or += 10
+    }
+    if (ruine == 1) {
+        log("Tu as trouvé un trésor incroyable");
+        log("30 Or, 20 diamant, et des objets objets obtenu")
+        event_coffre_plus();
+        joueur.or += 30;
+        joueur.gemmes += 20;
+        
+    }
+    
+}
 function event_chemin() {
     log("🛤️ Tu arrives à une intersection. Trois chemins s'offrent à toi...");
     log("Le premier semble mener vers des ruines anciennes.");
@@ -647,8 +665,8 @@ function event_coffre() {
     log("📦 En fouillant les buissons, tu aperçois quelque chose qui brille...");
     log("Un coffre apparaît !");
     const probas = [
-        [oCommuns, 1000], [oCommuns, 500], [oRares, 400],
-        [oLeg, 20], [oIntel, 200]
+        [oCommuns, 1000], [oCommuns, 800], [oRares, 500],
+        [oLeg, 30], [oIntel, 300]
     ];
     probas.forEach(([pool, chance]) => {
         if(randint(1, 1000) <= chance && pool.length > 0) {
@@ -662,8 +680,8 @@ function event_coffre_plus() {
     log("En t'approchant, tu découvres un coffre orné de runes mystiques !");
     log("C'est un coffre rare !");
     const probas = [
-        [oRares, 1000], [oRares, 700], [oLeg, 80],
-        [oUltra, 30], [oIntel, 500], [oCheat, 5]
+        [oRares, 1000], [oRares, 800], [oLeg, 100],
+        [oUltra, 40], [oIntel, 800], [oCheat, 10]
     ];
     probas.forEach(([pool, chance]) => {
         if(randint(1, 1000) <= chance && pool.length > 0) {
@@ -817,6 +835,7 @@ function event_donjon() {
     log("→ Tu descends dans les profondeurs...");
     if(combat(ennemiDonjon)) {
         log("🎁 Le donjon révèle ses trésors !", "#f1c40f");
+        loot_du_jour();
         loot_du_jour();
     }
 }
