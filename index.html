@@ -464,6 +464,8 @@ function startGame(mode) {
     if(mode === 'facile') diffSetting = { name: 'FACILE', gold: 1.5, enemy: 1, boss: 1 };
     if(mode === 'normal') diffSetting = { name: 'NORMAL', gold: 1, enemy: 1, boss: 1 };
     if(mode === 'difficile') diffSetting = { name: 'DIFFICILE', gold: 1, enemy: 1.5, boss: 1.25 };
+    if(mode === 'impossible') diffSetting = { name: 'IMPOSSIBLE', gold: 1, enemy: 2, boss: 1.25 };
+    if(mode === 'enfer') diffSetting = { name: 'ENFER', gold: 1, enemy: 3, boss: 1.5 };
     
     joueur.gemmes = parseInt(localStorage.getItem('pixelquest_gemmes') || '0');
     checkDailyGems();
