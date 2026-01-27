@@ -478,10 +478,19 @@ function startGame(mode) {
     joueur.regen += permanentUpgrades.regen;
 
     // CHARGER ET APPLIQUER LES OBJETS SÉLECTIONNÉS
+    // CHARGER ET APPLIQUER LES OBJETS SÉLECTIONNÉS
     const selectedItems = JSON.parse(localStorage.getItem('pixelquest_selected_items') || '[]');
     if(selectedItems.length > 0) {
         log("🎁 Objets de départ :", "#9b59b6");
         selectedItems.forEach(item => {
+            // Retirer l'objet des pools AVANT de l'appliquer
+            if(item.r === "legendaire" || item.r === "ultra" || item.r === "cheat") {
+                const allPools = [oLeg, oUltra, oCheat, oMarchandExclusif];
+                allPools.forEach(pool => {
+                    const idx = pool.findIndex(o => o.nom === item.nom);
+                    if(idx > -1) pool.splice(idx, 1);
+                });
+            }
             appliquer_objet(item);
         });
     }
