@@ -651,6 +651,7 @@ function event_incroyable() {
         log("Tu as trouvé un trésor incroyable");
         log("30 Or, 20 diamant, et des objets objets obtenu")
         log("→ +30 or obtenus", "#f1c40f");
+        log("💎 Tu obtient 20 gemmes");
         event_coffre_plus();
         joueur.or += 30;
         joueur.gemmes += 20;
@@ -1633,6 +1634,14 @@ function renderEventsCodex() {
             icon: "🏆",
             stats: "+40 or",
             proba: "Rare",
+            color: "#f1c40f"
+        },
+        {
+            nom: "RUINE ANCESTRALE",
+            desc: "Trésor le plus précieux",
+            icon: "✨",
+            stats: "30 or, 20 gemmes, coffre rare si tu as de la chance",
+            proba: "rare",
             color: "#f1c40f"
         }
     ];
