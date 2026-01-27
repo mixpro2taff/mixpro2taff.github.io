@@ -628,12 +628,14 @@ function event_incroyable() {
     let ruine = randint(1,3);
     if (ruine > 1) {
         log("Le trésor est bien mais tu espérait mieux... +10 or et des objets");
+        log("→ +10 or obtenus", "#f1c40f");
         loot_du_jour();
         joueur.or += 10
     }
     if (ruine == 1) {
         log("Tu as trouvé un trésor incroyable");
         log("30 Or, 20 diamant, et des objets objets obtenu")
+        log("→ +30 or obtenus", "#f1c40f");
         event_coffre_plus();
         joueur.or += 30;
         joueur.gemmes += 20;
