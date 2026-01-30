@@ -1158,8 +1158,8 @@ function playTurn() {
         log("🧠 Capacité IA active : +2 Intelligence", "#9b59b6");
     }
     
-    if(joueur.capas.includes("investissement") && randint(1,3) === 1) {
-        joueur.or += 30;
+    if(joueur.capas.includes("investissement") && randint(1,2) === 1) {
+        joueur.or += 20;
         log("💼 Capacité Investissement : +30 or", "#f1c40f");
     }
     
