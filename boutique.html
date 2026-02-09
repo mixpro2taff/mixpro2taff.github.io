@@ -307,11 +307,11 @@
             let rarity;
             
             if(rand < 500) rarity = "commun";
-            else if(rand < 720) rarity = "cheat";
+            else if(rand < 720) rarity = "rare";
             else if(rand < 920) rarity = "intel";
             else if(rand < 975) rarity = "legendaire";
             else if(rand < 995) rarity = "ultra";
-            else rarity = "rare";
+            else rarity = "cheat";
             
             const pool = allItems.filter(i => i.r === rarity);
             return pool[Math.floor(Math.random() * pool.length)];
