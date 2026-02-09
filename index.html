@@ -444,7 +444,7 @@ function checkDailyGems() {
     }
     
     if(lastClaim !== today) {
-        joueur.gemmes += 10;
+        joueur.gemmes += 100;
         localStorage.setItem('pixelquest_gemmes', joueur.gemmes.toString());
         localStorage.setItem('pixelquest_last_daily_claim', today);
         localStorage.setItem('pixelquest_last_timestamp', currentTimestamp.toString());
