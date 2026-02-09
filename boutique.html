@@ -157,11 +157,11 @@
 
         // Configuration des améliorations
         const upgrades = [
-            {stat: 'pv', label: 'PV MAX', icon: '❤️', bonus: 10, color: '#e74c3c'},
-            {stat: 'att', label: 'ATTAQUE', icon: '⚔️', bonus: 5, color: '#f39c12'},
-            {stat: 'or', label: 'OR DE DÉPART', icon: '💰', bonus: 5, color: '#f1c40f'},
-            {stat: 'def', label: 'DÉFENSE', icon: '🛡️', bonus: 0.1, color: '#3498db'},
-            {stat: 'regen', label: 'RÉGÉNÉRATION', icon: '✨', bonus: 2, color: '#2ecc71'}
+            {stat: 'pv', label: 'PV MAX', icon: '❤️', bonus: 100, color: '#e74c3c'},
+            {stat: 'att', label: 'ATTAQUE', icon: '⚔️', bonus: 50, color: '#f39c12'},
+            {stat: 'or', label: 'OR DE DÉPART', icon: '💰', bonus: 50, color: '#f1c40f'},
+            {stat: 'def', label: 'DÉFENSE', icon: '🛡️', bonus: 1, color: '#3498db'},
+            {stat: 'regen', label: 'RÉGÉNÉRATION', icon: '✨', bonus: 20, color: '#2ecc71'}
         ];
 
         function renderBoutique() {
@@ -208,7 +208,7 @@
             
             gemmes -= cost;
             permanentUpgrades[stat] += (stat === 'def' ? bonus : bonus);
-            upgradesCost[stat] += 5;
+            upgradesCost[stat] += 50;
             
             // Sauvegarder
             localStorage.setItem('pixelquest_upgrades', JSON.stringify(permanentUpgrades));
