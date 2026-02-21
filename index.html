@@ -262,7 +262,7 @@
 // ======================
 const DEF_MIN = 0.2;
 let jour = 1;
-let diffSetting = { name: 'NORMAL', gold: 1, enemy: 1, boss: 1 };
+let diffSetting = { name: 'NORMAL', gold: 1, enemy: 1, boss: 1, def: 1 };
 let joueur = { intelligence: 0, pv: 100, att: 8, def: 3, or: 40, regen: 20, capas: [] , gemmes: 0};
 let permanentUpgrades = JSON.parse(localStorage.getItem('pixelquest_upgrades') || '{"pv":0,"att":0,"def":0,"or":0,"regen":0}');
 let upgradesCost = JSON.parse(localStorage.getItem('pixelquest_costs') || '{"pv":10,"att":10,"def":10,"or":10,"regen":10}');
@@ -461,11 +461,11 @@ function checkDailyGems() {
 // ======================
 function startGame(mode) {
     document.getElementById('collection-overlay').style.display = 'none';
-    if(mode === 'facile') diffSetting = { name: 'FACILE', gold: 1.5, enemy: 1, boss: 1 };
-    if(mode === 'normal') diffSetting = { name: 'NORMAL', gold: 1, enemy: 1, boss: 1 };
-    if(mode === 'difficile') diffSetting = { name: 'DIFFICILE', gold: 1, enemy: 1.5, boss: 1.25 };
-    if(mode === 'impossible') diffSetting = { name: 'IMPOSSIBLE', gold: 1, enemy: 2, boss: 1.25 };
-    if(mode === 'enfer') diffSetting = { name: 'ENFER', gold: 1, enemy: 3, boss: 1.5 };
+    if(mode === 'facile') diffSetting = { name: 'FACILE', gold: 1.5, enemy: 1, boss: 1, def : 1 };
+    if(mode === 'normal') diffSetting = { name: 'NORMAL', gold: 1, enemy: 1, boss: 1, def : 1};
+    if(mode === 'difficile') diffSetting = { name: 'DIFFICILE', gold: 1, enemy: 1.5, boss: 1.25, def : 2};
+    if(mode === 'impossible') diffSetting = { name: 'IMPOSSIBLE', gold: 1, enemy: 2, boss: 1.5, def : 3};
+    if(mode === 'enfer') diffSetting = { name: 'ENFER', gold: 1, enemy: 3, boss: 2.5, def : 5};
     
     joueur.gemmes = parseInt(localStorage.getItem('pixelquest_gemmes') || '0');
     checkDailyGems();
