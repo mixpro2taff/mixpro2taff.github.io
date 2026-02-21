@@ -479,6 +479,7 @@ function startGame(mode) {
 
     // CHARGER ET APPLIQUER LES OBJETS SÉLECTIONNÉS
     // CHARGER ET APPLIQUER LES OBJETS SÉLECTIONNÉS
+    joueur. def = Math.max(DEF_MIN, joueur. def * diffSetting.def);
     const selectedItems = JSON.parse(localStorage.getItem('pixelquest_selected_items') || '[]');
     if(selectedItems.length > 0) {
         log("🎁 Objets de départ :", "#9b59b6");
