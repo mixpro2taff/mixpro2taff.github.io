@@ -9,7 +9,7 @@
             --card-bg: #111116;
             --accent: #f1c40f;
         }
-
+ 
         body {
             background-color: var(--bg-color);
             color: #fff;
@@ -21,13 +21,13 @@
             margin: 0;
             user-select: none;
         }
-
+ 
         #start-menu {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 2000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-
+ 
         .stats-bar {
             display: flex; justify-content: space-around; width: 950px;
             border: 4px double #fff; padding: 15px; background: #000; margin-bottom: 20px;
@@ -36,17 +36,17 @@
         .stat-label { font-size: 0.7em; color: #888; text-transform: uppercase; }
         .stat-value { font-size: 1.2em; font-weight: bold; color: var(--accent); }
         .boutique-tab-btn { position: fixed; bottom: 20px; left: 20px; border-color: #9b59b6; color: #9b59b6; z-index: 999; }
-
+ 
         #game-screen {
             width: 950px; height: 350px; background: #000; border: 2px solid #222;
             padding: 20px; overflow-y: auto; box-sizing: border-box; margin-bottom: 20px;
         }
-
+ 
         #merchant-area {
             display: none; width: 950px; background: #050505; border: 2px dashed var(--accent);
             padding: 20px; box-sizing: border-box; text-align: center; margin-bottom: 20px;
         }
-
+ 
         .cards-container { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; }
         
         .item-card {
@@ -62,27 +62,27 @@
             text-align: left;
         }
         .item-card:hover { transform: translateY(-5px); background: #000; }
-
+ 
         .rarity-commun:hover { border-color: #95a5a6; box-shadow: 0 0 15px #95a5a6; }
         .rarity-rare:hover { border-color: #3498db; box-shadow: 0 0 15px #3498db; }
         .rarity-legendaire:hover { border-color: #f1c40f; box-shadow: 0 0 15px #f1c40f; }
         .rarity-ultra:hover { border-color: #9b59b6; box-shadow: 0 0 15px #9b59b6; }
         .rarity-intel:hover { border-color: #2ecc71; box-shadow: 0 0 15px #2ecc71; }
         .rarity-cheat:hover { border-color: #e74c3c; box-shadow: 0 0 25px #e74c3c; }
-
+ 
         .card-name { font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 10px; font-size: 0.9em; color: #fff; }
         .card-stats { flex-grow: 1; font-size: 0.75em; line-height: 1.4; color: #bbb; }
         .card-stats span { color: #2ecc71; }
         .card-capa { color: #e67e22; font-style: italic; margin-top: 5px; font-size: 0.85em; }
         .owned-tag { color: #2ecc71; font-weight: bold; font-size: 0.7em; margin-top: 5px; }
-
+ 
         #codex-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.98); z-index: 1000;
             padding: 40px; box-sizing: border-box; overflow-y: auto;
         }
         .possessed-card { border-color: #2ecc71 !important; box-shadow: inset 0 0 10px rgba(46, 204, 113, 0.2); }
-
+ 
         .btn {
             background: #000; color: #fff; border: 2px solid #fff;
             padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: bold;
@@ -104,7 +104,7 @@
     box-sizing: border-box;
     overflow-y: auto;
 }
-
+ 
 .collection-card {
     background: var(--card-bg);
     border: 2px solid #333;
@@ -119,52 +119,52 @@
     opacity: 0.3;
     filter: grayscale(100%);
 }
-
+ 
 .collection-card.owned {
     opacity: 1;
     filter: grayscale(0%);
 }
-
+ 
 .collection-card.owned:hover {
     transform: translateY(-5px);
     background: #000;
 }
-
+ 
 .collection-card.selected {
     opacity: 1 !important;
     filter: grayscale(0%) !important;
 }
-
+ 
 .collection-card.selected.rarity-commun {
     border-color: #95a5a6;
     box-shadow: 0 0 20px #95a5a6;
 }
-
+ 
 .collection-card.selected.rarity-rare {
     border-color: #3498db;
     box-shadow: 0 0 20px #3498db;
 }
-
+ 
 .collection-card.selected.rarity-legendaire {
     border-color: #f1c40f;
     box-shadow: 0 0 20px #f1c40f;
 }
-
+ 
 .collection-card.selected.rarity-ultra {
     border-color: #9b59b6;
     box-shadow: 0 0 20px #9b59b6;
 }
-
+ 
 .collection-card.selected.rarity-intel {
     border-color: #2ecc71;
     box-shadow: 0 0 20px #2ecc71;
 }
-
+ 
 .collection-card.selected.rarity-cheat {
     border-color: #e74c3c;
     box-shadow: 0 0 25px #e74c3c;
 }
-
+ 
 .card-count {
     position: absolute;
     top: 5px;
@@ -176,7 +176,7 @@
     font-size: 0.7em;
     font-weight: bold;
 }
-
+ 
 .selected-indicator {
     position: absolute;
     top: 5px;
@@ -191,56 +191,59 @@
     </style>
 </head>
 <body>
-
+ 
     <div id="start-menu">
     <h1 style="color: var(--accent); font-size: 4em;">PIXEL QUEST</h1>
     <p>SÉLECTIONNE TA DIFFICULTÉ</p>
-
-    <!-- Ligne 1 -->
-    <div style="margin-top: 20px;">
+ 
+    <!-- Ligne 1 : 4 boutons -->
+    <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
         <button class="btn" onclick="startGame('tres_facile')">
             TRÈS FACILE (Or x1.5)
         </button>
-
-        <button class="btn" onclick="startGame('facile')" style="margin: 0 10px;">
+ 
+        <button class="btn" onclick="startGame('facile')">
             FACILE
         </button>
-
-        <button class="btn" onclick="startGame('normal')" style="margin: 0 10px;">
+ 
+        <button class="btn" onclick="startGame('normal')">
             NORMAL (Ennemis x1.5)
         </button>
-
+ 
         <button class="btn" onclick="startGame('difficile')">
             DIFFICILE (Ennemis x2)
         </button>
     </div>
-
-    <!-- Ligne 2 -->
-    <div style="margin-top: 10px;">
+ 
+    <!-- Ligne 2 : 2 boutons -->
+    <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: center;">
         <button class="btn" onclick="startGame('tres_difficile')">
             TRÈS DIFFICILE (Ennemis x3, Boss x1.5)
         </button>
-
-        <button class="btn" onclick="startGame('pro')" style="margin: 0 10px; border-color: #f39c12; color: #f39c12;">
+ 
+        <button class="btn" onclick="startGame('pro')" style="border-color: #f39c12; color: #f39c12;">
             PRO (Ennemis x4, boss x2, nerf 10% PV/att)
         </button>
-
-        <button class="btn" onclick="startGame('impossible')" style="margin: 0 10px; border-color: #e74c3c; color: #e74c3c;">
+    </div>
+ 
+    <!-- Ligne 3 : 2 boutons -->
+    <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: center;">
+        <button class="btn" onclick="startGame('impossible')" style="border-color: #e74c3c; color: #e74c3c;">
             IMPOSSIBLE (Ennemis x5, boss x2,5, nerf 20% PV/att)
         </button>
-
+ 
         <button class="btn" onclick="startGame('enfer')" style="border-color: #8e44ad; color: #8e44ad;">
             ENFER (Ennemis x6, boss x3, nerf 30% PV/att)
         </button>
     </div>
-
-    <!-- Ligne 3 -->
-    <div style="margin-top: 10px;">
-        <button class="btn" onclick="startGame('apocalypse')" style="border-color: #2c3e50; color: #2c3e50;">
+ 
+    <!-- Ligne 4 : 1 bouton seul -->
+    <div style="margin-top: 10px; display: flex; justify-content: center;">
+        <button class="btn" onclick="startGame('apocalypse')" style="border-color: #636e72; color: #636e72;">
             APOCALYPSE (Ennemis x8, boss x4, nerf 50% PV/attaque, nerf 25% regen/or)
         </button>
     </div>
-
+ 
     <!-- Collection -->
     <div style="margin-top: 30px;">
         <button class="btn" onclick="openCollection()" style="border-color: #9b59b6; color: #9b59b6;">
@@ -249,7 +252,7 @@
     </div>
     </div>
 </div>
-
+ 
     <div class="stats-bar">
         <div class="stat-item"><div class="stat-label">Jour</div><div id="stat-jour" class="stat-value">1</div></div>
         <div class="stat-item"><div class="stat-label">Santé</div><div id="stat-pv" class="stat-value" style="color:#ff4757">100</div></div>
@@ -260,19 +263,19 @@
         <div class="stat-item"><div class="stat-label">Intel</div><div id="stat-int" class="stat-value">0</div></div>
         <div class="stat-item"><div class="stat-label">Gemmes</div><div id="stat-gemmes" class="stat-value">0</div></div>
     </div>
-
+ 
     <div id="game-screen"></div>
-
+ 
     <div id="merchant-area">
         <h2 style="margin:0 0 15px 0;">🛒 MARCHAND</h2>
         <div id="merchant-cards" class="cards-container"></div>
         <button class="btn" onclick="finishDay()" style="margin-top: 15px; border-color: var(--accent);">Continuer</button>
     </div>
-
+ 
     <button id="btn-next" class="btn" onclick="playTurn()" style="width: 950px; font-size: 1.4em;">Lancer Jour 1</button>
     <button class="btn codex-tab-btn" onclick="toggleCodex(true)">📖 CODEX</button>
     <button class="btn boutique-tab-btn" onclick="toggleBoutique(true)">💎 BOUTIQUE</button>
-
+ 
     <div id="codex-overlay">
         <div style="display:flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); padding-bottom: 15px; margin-bottom: 20px;">
             <h1 style="margin:0; color:var(--accent);">CODEX</h1>
@@ -294,7 +297,7 @@
             <div id="events-grid"></div>
         </div>
     </div>
-
+ 
 <script>
 // ======================
 // CONFIG & DATA
@@ -306,8 +309,7 @@ let joueur = { intelligence: 0, pv: 100, att: 8, def: 3, or: 40, regen: 20, capa
 let permanentUpgrades = JSON.parse(localStorage.getItem('pixelquest_upgrades') || '{"pv":0,"att":0,"def":0,"or":0,"regen":0}');
 let upgradesCost = JSON.parse(localStorage.getItem('pixelquest_costs') || '{"pv":10,"att":10,"def":10,"or":10,"regen":10}');
 // CHARGER LA SÉLECTION D'OBJETS AU DÉMARRAGE DE LA PAGE
-// CHARGER LA SÉLECTION D'OBJETS AU DÉMARRAGE DE LA PAGE
-
+ 
 function loadSelectedItems() {
     const savedItems = JSON.parse(localStorage.getItem('pixelquest_selected_items') || '[]');
     const inventory = JSON.parse(localStorage.getItem('pixelquest_inventory') || '[]');
@@ -326,17 +328,15 @@ function loadSelectedItems() {
         });
     });
     
-    // Mettre à jour l'affichage du compteur dans le menu
     if(document.getElementById('selected-count')) {
         document.getElementById('selected-count').innerText = selectedCollectionItems.length;
     }
 }
-
-// Charger au démarrage quand le DOM est prêt
+ 
 window.addEventListener('DOMContentLoaded', function() {
     loadSelectedItems();
 });
-
+ 
 const oCommuns = [
     {nom: "Épée rouillée", att: 3, r:"commun"},
     {nom: "Casque simple", pv: 8, r:"commun"},
@@ -347,7 +347,7 @@ const oCommuns = [
     {nom: "Bouclier", def: -0.1, pv: 5, r:"commun"},
     {nom: "Buff evo commun", att: 4, pv: 10, regen: 1, def: -0.1, r:"commun"}
 ];
-
+ 
 const oRares = [
     {nom: "Épée fine", att: 8, r:"rare"},
     {nom: "Armure renforcée", def: -0.2, pv: 10, r:"rare"},
@@ -359,7 +359,7 @@ const oRares = [
     {nom: "Buff evo rare", att: 8, pv: 20, def: -0.2, regen: 2, r:"rare"},
     {nom: "Livre tactique", att: 8, intelligence: 5, r:"rare"}
 ];
-
+ 
 const oLeg = [
     {nom: "Lame mythique", att: 95, r:"legendaire"},
     {nom: "Armure enchantée", pv: 70, def: -0.25, regen: 10, r:"legendaire"},
@@ -369,7 +369,7 @@ const oLeg = [
     {nom: "Buff legendaire", att: 30, pv: 50, def: -0.3, regen: 8, r:"legendaire"},
     {nom: "Savoir continu", intelligence: 10, capa: "ia", r:"legendaire"}
 ];
-
+ 
 const oUltra = [
     {nom: "Bouclier invincible", pv: 120, def: -0.5, capa: "invincible_3tour", r:"ultra"},
     {nom: "Gantelet de puissance", att: 90, capa: "crit_25", r:"ultra"},
@@ -378,7 +378,7 @@ const oUltra = [
     {nom: "Source du savoir", intelligence: 15, capa: "raisonnement", r:"ultra"},
     {nom: "Negociant", capa: "investissement", r:"ultra"}
 ];
-
+ 
 const oIntel = [
     {nom: "Cerveau moisi", intelligence: 1, r:"intel"},
     {nom: "Livre pas ouf", intelligence: 2, r:"intel"},
@@ -386,14 +386,14 @@ const oIntel = [
     {nom: "Grimoire qui date", intelligence: 3, r:"intel"},
     {nom: "Livre du savoir", intelligence: 7, r:"intel"}
 ];
-
+ 
 const oCheat = [
     {nom: "(Mahe) Rat divin", capa: "loot+", r:"cheat"},
     {nom: "Buff divin", pv: 300, att: 150, def: -1, regen: 30, r:"cheat"},
     {nom: "Lumiere divine", att: 100, capa: "extermination", r:"cheat"},
     {nom: "Miroir de l'âme", capa: "reflect_50", r:"cheat"}
 ];
-
+ 
 const oMarchandExclusif = [
     {nom: "Élixir ancestral", pv: 30, regen: 6, r:"rare"},
     {nom: "Couronne du sage", intelligence: 45, def: -0.2, att: 25, r:"legendaire"},
@@ -404,9 +404,9 @@ const oMarchandExclusif = [
     {nom: "Pierre philosophale",def: -0.2, pv: 50, regen: 8, capa: "alchimie", r:"ultra"},
     {nom: "Médaillon du destin", pv: 40, att: 15, def: -0.20, intelligence: 5, r:"legendaire"}
 ];
-
+ 
 const ALL_ITEMS = [...oCommuns, ...oRares, ...oLeg, ...oUltra, ...oIntel, ...oCheat, ...oMarchandExclusif];
-
+ 
 const ennemisBase = {
     voleur: {nom: "Voleur", pv: 60, att: 6, def: 2, or: 10},
     guerrier: {nom: "Guerrier", pv: 100, att: 8, def: 1.8, or: 20},
@@ -427,13 +427,13 @@ const ennemisBase = {
     boss50: {nom: "Roi de la galaxie", pv: 20000, att: 600, def: 0.10, or: 90, gemmes: 12},
     boss60: {nom: "Dictateur inter-galaxie", pv: 35000, att: 900, def: 0.1, or: 100, gemmes: 18}
 };
-
+ 
 // ======================
 // HELPERS
 // ======================
 const randint = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const choice = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
+ 
 function ennemi_elite(e) {
     return {
         nom: "Élite " + e.nom,
@@ -444,7 +444,7 @@ function ennemi_elite(e) {
         gemmes: e.gemmes || 0
     };
 }
-
+ 
 function ennemi_elite2(e) {
     return {
         nom: "SUPER " + e.nom,
@@ -455,7 +455,7 @@ function ennemi_elite2(e) {
         gemmes: e.gemmes || 0
     };
 }
-
+ 
 function ennemi_elite3(e) {
     return {
         nom: "ULTRA " + e.nom,
@@ -466,7 +466,7 @@ function ennemi_elite3(e) {
         gemmes: e.gemmes || 0
     };
 }
-
+ 
 // ======================
 // SYSTÈME DE GEMMES QUOTIDIENNES
 // ======================
@@ -494,21 +494,21 @@ function checkDailyGems() {
         localStorage.setItem('pixelquest_last_timestamp', currentTimestamp.toString());
     }
 }
-
+ 
 // ======================
 // UI
 // ======================
 function startGame(mode) {
     document.getElementById('collection-overlay').style.display = 'none';
-    if(mode === 'tres facile') diffSetting = { name: 'TRES FACILE', gold: 1.5, enemy: 1, boss: 1, def : 1 };
-    if(mode === 'facile') diffSetting = { name: 'FACILE', gold: 1, enemy: 1, boss: 1, def : 1 };
-    if(mode === 'normal') diffSetting = { name: 'NORMAL', gold: 1, enemy: 1.5, boss: 1, def : 1};
-    if(mode === 'difficile') diffSetting = { name: 'DIFFICILE', gold: 1, enemy: 2, boss: 1, def : 2};
-    if(mode === 'tres difficile') diffSetting = { name: 'TRES DIFFICILE', gold: 1, enemy: 3, boss: 1.5, def : 3};
-    if(mode === 'pro') diffSetting = { name: 'PRO', gold: 1, enemy: 4, boss: 2, def : 5 };
-    if(mode === 'impossible') diffSetting = { name: 'IMPOSSIBLE', gold: 1, enemy: 5, boss: 2.5, def : 8};
-    if(mode === 'enfer') diffSetting = { name: 'ENFER', gold: 1, enemy: 6, boss: 3, def : 10};
-    if(mode === 'apocalypse') diffSetting = { name: 'APOCALYPSE', gold: 1, enemy: 8, boss: 4, def : 15 };
+    if(mode === 'tres_facile') diffSetting = { name: 'TRES FACILE', gold: 1.5, enemy: 1, boss: 1, def: 1, nerfPv: 0, nerfAtt: 0, nerfRegen: 0, nerfOr: 0 };
+    if(mode === 'facile') diffSetting = { name: 'FACILE', gold: 1, enemy: 1, boss: 1, def: 1, nerfPv: 0, nerfAtt: 0, nerfRegen: 0, nerfOr: 0 };
+    if(mode === 'normal') diffSetting = { name: 'NORMAL', gold: 1, enemy: 1.5, boss: 1, def: 1, nerfPv: 0, nerfAtt: 0, nerfRegen: 0, nerfOr: 0 };
+    if(mode === 'difficile') diffSetting = { name: 'DIFFICILE', gold: 1, enemy: 2, boss: 1, def: 2, nerfPv: 0, nerfAtt: 0, nerfRegen: 0, nerfOr: 0 };
+    if(mode === 'tres_difficile') diffSetting = { name: 'TRES DIFFICILE', gold: 1, enemy: 3, boss: 1.5, def: 3, nerfPv: 0, nerfAtt: 0, nerfRegen: 0, nerfOr: 0 };
+    if(mode === 'pro') diffSetting = { name: 'PRO', gold: 1, enemy: 4, boss: 2, def: 5, nerfPv: 0.10, nerfAtt: 0.10, nerfRegen: 0, nerfOr: 0 };
+    if(mode === 'impossible') diffSetting = { name: 'IMPOSSIBLE', gold: 1, enemy: 5, boss: 2.5, def: 8, nerfPv: 0.20, nerfAtt: 0.20, nerfRegen: 0, nerfOr: 0 };
+    if(mode === 'enfer') diffSetting = { name: 'ENFER', gold: 1, enemy: 6, boss: 3, def: 10, nerfPv: 0.30, nerfAtt: 0.30, nerfRegen: 0, nerfOr: 0 };
+    if(mode === 'apocalypse') diffSetting = { name: 'APOCALYPSE', gold: 1, enemy: 8, boss: 4, def: 15, nerfPv: 0.50, nerfAtt: 0.50, nerfRegen: 0.25, nerfOr: 0.25 };
     
     joueur.gemmes = parseInt(localStorage.getItem('pixelquest_gemmes') || '0');
     checkDailyGems();
@@ -519,10 +519,28 @@ function startGame(mode) {
     joueur.def -= permanentUpgrades.def;
     joueur.or += permanentUpgrades.or;
     joueur.regen += permanentUpgrades.regen;
-
+ 
+    joueur.def = Math.max(DEF_MIN, joueur.def * diffSetting.def);
+ 
+    // Appliquer les nerfs de difficulté (PV, Att, Regen, Or)
+    if(diffSetting.nerfPv > 0) {
+        joueur.pv = Math.floor(joueur.pv * (1 - diffSetting.nerfPv));
+        log("💀 Nerf difficulté : PV réduits de " + (diffSetting.nerfPv * 100) + "%", "#e74c3c");
+    }
+    if(diffSetting.nerfAtt > 0) {
+        joueur.att = Math.floor(joueur.att * (1 - diffSetting.nerfAtt));
+        log("💀 Nerf difficulté : Attaque réduite de " + (diffSetting.nerfAtt * 100) + "%", "#e74c3c");
+    }
+    if(diffSetting.nerfRegen > 0) {
+        joueur.regen = Math.floor(joueur.regen * (1 - diffSetting.nerfRegen));
+        log("💀 Nerf difficulté : Régénération réduite de " + (diffSetting.nerfRegen * 100) + "%", "#e74c3c");
+    }
+    if(diffSetting.nerfOr > 0) {
+        joueur.or = Math.floor(joueur.or * (1 - diffSetting.nerfOr));
+        log("💀 Nerf difficulté : Or de départ réduit de " + (diffSetting.nerfOr * 100) + "%", "#e74c3c");
+    }
+ 
     // CHARGER ET APPLIQUER LES OBJETS SÉLECTIONNÉS
-    // CHARGER ET APPLIQUER LES OBJETS SÉLECTIONNÉS
-    joueur. def = Math.max(DEF_MIN, joueur. def * diffSetting.def);
     const selectedItems = JSON.parse(localStorage.getItem('pixelquest_selected_items') || '[]');
     if(selectedItems.length > 0) {
         log("🎁 Objets de départ :", "#9b59b6");
@@ -557,7 +575,7 @@ function updateUI() {
     document.getElementById('stat-gemmes').innerText = joueur.gemmes;
     document.getElementById('btn-next').innerText = "Lancer Jour " + jour;
 }
-
+ 
 function log(msg, color = "#fff") {
     const screen = document.getElementById('game-screen');
     const div = document.createElement('div');
@@ -567,7 +585,7 @@ function log(msg, color = "#fff") {
     screen.appendChild(div);
     screen.scrollTop = screen.scrollHeight;
 }
-
+ 
 // ======================
 // APPLIQUER OBJET
 // ======================
@@ -610,7 +628,7 @@ function appliquer_objet(obj) {
     
     updateUI();
 }
-
+ 
 // ======================
 // LOOT & PROBAS
 // ======================
@@ -625,7 +643,7 @@ function loot_du_jour() {
         }
     });
 }
-
+ 
 // ======================
 // EVENTS
 // ======================
@@ -643,7 +661,7 @@ function event_piege() {
     }
     updateUI();
 }
-
+ 
 function event_piege_plus() {
     log("⚠️⚠️ Le sol s'effondre sous tes pieds !");
     log("Un piège mortel se déclenche !");
@@ -658,14 +676,14 @@ function event_piege_plus() {
     }
     updateUI();
 }
-
+ 
 function event_gain() {
     log("💰 En explorant les environs, tu découvres une bourse abandonnée !");
     log("→ +10 or obtenus", "#f1c40f");
     joueur.or += 10;
     updateUI();
 }
-
+ 
 function event_gain_plus() {
     log("💰💰 Tu tombes sur un ancien campement de bandits...");
     log("Leur trésor est encore là !");
@@ -673,7 +691,7 @@ function event_gain_plus() {
     joueur.or += 20;
     updateUI();
 }
-
+ 
 function event_rencontre() {
     log("😊 Tu croises un groupe de voyageurs pacifiques autour d'un feu de camp.");
     log("Ils partagent leur nourriture avec toi.");
@@ -722,7 +740,7 @@ function event_chemin() {
     }
     updateUI();
 }
-
+ 
 function event_coffre() {
     log("📦 En fouillant les buissons, tu aperçois quelque chose qui brille...");
     log("Un coffre apparaît !");
@@ -736,7 +754,7 @@ function event_coffre() {
         }
     });
 }
-
+ 
 function event_coffre_plus() {
     log("📦✨ Un éclat magique attire ton attention au loin...");
     log("En t'approchant, tu découvres un coffre orné de runes mystiques !");
@@ -758,7 +776,7 @@ function event_gemmes() {
     log("💎 Tu obtient 10 gemmes");
     joueur.gemmes += 10;
 }
-
+ 
 function event_gemmes_plus() {
     log("En explorant les environs tu trouve une grotte");
     log("La grotte est remplit de diamant, tu décide d'en extraire");
@@ -782,7 +800,7 @@ function event_pari() {
     }
     updateUI();
 }
-
+ 
 function event_pari_plus() {
     log("🎲✨ Un mystérieux joueur encapuchonné t'invite à une partie spéciale...");
     log("Les règles semblent être en ta faveur, mais le risque demeure.");
@@ -798,7 +816,7 @@ function event_pari_plus() {
     }
     updateUI();
 }
-
+ 
 function jackpot() {
     log("🏆 En explorant une grotte abandonnée, tu tombes sur une salle cachée...");
     log("Un TRÉSOR LÉGENDAIRE s'y trouve !");
@@ -807,7 +825,7 @@ function jackpot() {
     joueur.or += 40;
     updateUI();
 }
-
+ 
 function event_auberge() {
     log("🏠 Après des heures de marche, tu aperçois une auberge accueillante.");
     log("L'odeur de nourriture chaude t'attire. L'aubergiste te propose ses services.");
@@ -827,7 +845,7 @@ function event_auberge() {
     }
     updateUI();
 }
-
+ 
 function event_bibliotheque() {
     log("📚 Tu découvres une bibliothèque ancienne remplie de grimoires poussiéreux.");
     log("Les connaissances contenues ici sont immenses, mais déchiffrer ces textes");
@@ -846,7 +864,7 @@ function event_bibliotheque() {
         log("→ Tu préfères garder tes forces. Sage décision.", "#95a5a6");
     }
 }
-
+ 
 function event_enigme() {
     log("🧩 Un sage mystérieux bloque ton chemin.");
     log("'Résous mon énigme et je te récompenserai', dit-il avec un sourire.");
@@ -870,7 +888,7 @@ function event_enigme() {
         log("(La réponse était : " + solution + ")");
     }
 }
-
+ 
 function event_donjon() {
     log("🏰 Tu découvres l'entrée d'un donjon mystérieux...");
     log("Des bruits inquiétants résonnent depuis les profondeurs.");
@@ -901,7 +919,7 @@ function event_donjon() {
         loot_du_jour();
     }
 }
-
+ 
 function event_marchand_ambulant() {
     log("🎪 En traversant un village, tu aperçois un marchand ambulant excentrique !");
     log("Sa carriole déborde d'objets étranges et de reliques mystérieuses.");
@@ -910,17 +928,14 @@ function event_marchand_ambulant() {
     const allItems = [...oMarchandExclusif, ...oRares, ...oLeg, ...oIntel];
     const stock = [];
     
-    // Premier objet garanti
     if(allItems.length > 0) {
         stock.push(choice(allItems));
     }
     
-    // 40% de chance d'avoir un 2ème objet
     if(randint(1, 100) <= 40 && allItems.length > 0) {
         stock.push(choice(allItems));
     }
     
-    // 1% de chance d'avoir un 3ème objet
     if(randint(1, 100) <= 1 && allItems.length > 0) {
         stock.push(choice(allItems));
         log("→ Le marchand est de très bonne humeur aujourd'hui !", "#f1c40f");
@@ -934,7 +949,7 @@ function event_marchand_ambulant() {
     
     updateUI();
 }
-
+ 
 // ======================
 // MARCHAND (fin de journée)
 // ======================
@@ -958,7 +973,7 @@ function genererMarchand() {
     
     return stock;
 }
-
+ 
 // ======================
 // COMBAT
 // ======================
@@ -997,7 +1012,7 @@ function combat(eBase, isBoss = false) {
         if(joueur.capas.includes("multi_attaque")) { 
             while(randint(1, 3) === 1) atks++; 
         }
-
+ 
         for(let i=0; i<atks; i++) {
             let d = joueur.att * en.def;
             if(joueur.intelligence > jour * 2.5) {
@@ -1019,7 +1034,7 @@ function combat(eBase, isBoss = false) {
             if(pvE <= 0) break;
         }
     }
-
+ 
     if(joueur.pv > 0) {
         log("🏆 Victoire !", "#2ecc71");
         if(en.gemmes) {
@@ -1042,7 +1057,7 @@ function combat(eBase, isBoss = false) {
     btn.disabled = false;
     return false;
 }
-
+ 
 // ======================
 // EVENTS POSSIBLES
 // ======================
@@ -1056,7 +1071,7 @@ function ennemi_boss(e) {
         gemmes: e.gemmes || 0
     };
 }
-
+ 
 function getEventsPossibles() {
     let mag = ennemisBase.mage;
     let ber = ennemisBase.berserker;
@@ -1070,7 +1085,7 @@ function getEventsPossibles() {
     let tit = ennemisBase.titan;
     let crea = ennemisBase.creature;
     let dem =  ennemisBase.demon;
-
+ 
     if(jour >= 40) {
         vol = ennemi_boss(vol);
         gue = ennemi_boss(gue);
@@ -1118,7 +1133,7 @@ function getEventsPossibles() {
         ber = ennemi_elite(ber);
         mag = ennemi_elite(mag);
     }
-
+ 
     let events = [
         () => combat(vol),
         () => combat(vol),
@@ -1153,7 +1168,7 @@ function getEventsPossibles() {
         event_gemmes_plus,
         event_incroyable,
     ];
-
+ 
     if(jour >= 5) {
         events.push(
             () => combat(cha),
@@ -1168,7 +1183,7 @@ function getEventsPossibles() {
             () => combat(cha)
         );
     }
-
+ 
     if(jour >= 10) {
         events.push(() => combat(drag));
         events.push(() => combat(tit));
@@ -1177,14 +1192,14 @@ function getEventsPossibles() {
     if(jour>= 20) {
         events.push(() => combat(crea));
     }
-
+ 
     if(jour>= 30) {
         events.push(() => combat(dem));
     }
-
+ 
     return events;
 }
-
+ 
 // ======================
 // CYCLE DE JEU
 // ======================
@@ -1211,16 +1226,16 @@ function playTurn() {
         joueur.or += 25;
         log("💎 Capacité Alchimie : +25 or", "#f1c40f");
     }
-
+ 
     loot_du_jour();
     
     if(joueur.capas.includes("loot+") && randint(1,4) <= 3) {
         log("🎁 Capacité Loot+ activée !", "#e67e22");
         loot_du_jour();
     }
-
+ 
     if(joueur.pv <= 0) return;
-
+ 
     if(jour === 10) {
         log("🚨 BOSS APPARAÎT : Seigneur de fer !", "#8e44ad");
         if(!combat(ennemisBase.boss10, true)) return;
@@ -1257,9 +1272,9 @@ function playTurn() {
         const selectedEvent = choice(events);
         selectedEvent();
     }
-
+ 
     if(joueur.pv <= 0) return;
-
+ 
     if(joueur.pv > 0) {
         document.getElementById('merchant-area').style.display = 'block';
         const mCards = document.getElementById('merchant-cards');
@@ -1273,14 +1288,14 @@ function playTurn() {
     
     updateUI();
 }
-
+ 
 function finishDay() {
     document.getElementById('merchant-area').style.display = 'none';
     jour++; 
     updateUI(); 
     document.getElementById('btn-next').disabled = false;
 }
-
+ 
 // ======================
 // CARTE INTERFACE
 // ======================
@@ -1295,7 +1310,7 @@ function createCard(obj, isMerchant = false) {
     if(obj.def) s += `🛡️ Def: <span>${obj.def}</span><br>`;
     if(obj.intelligence) s += `🧠 Int: <span>+${obj.intelligence}</span><br>`;
     if(obj.regen) s += `✨ Reg: <span>+${obj.regen}</span><br>`;
-
+ 
     card.innerHTML = `
         <div class="card-name">${obj.nom}</div>
         <div class="card-stats">${s || '<em style="color:#666">Capacité spéciale</em>'}</div>
@@ -1303,7 +1318,7 @@ function createCard(obj, isMerchant = false) {
         ${isPossessed ? `<div class="owned-tag">✓ ACQUIS</div>` : ''}
         ${isMerchant ? `<div style="margin-top:10px; color:#f1c40f; font-weight:bold; font-size:0.8em">💰 20 OR</div>` : ''}
     `;
-
+ 
     if(isMerchant) {
         card.style.cursor = 'pointer';
         card.onclick = () => {
@@ -1322,7 +1337,7 @@ function createCard(obj, isMerchant = false) {
     
     return card;
 }
-
+ 
 function renderCodex() {
     const grid = document.getElementById('codex-grid');
     grid.innerHTML = "";
@@ -1355,7 +1370,7 @@ function renderCodex() {
         grid.appendChild(section);
     });
 }
-
+ 
 function toggleCodex(show) {
     const overlay = document.getElementById('codex-overlay');
     if(show) {
@@ -1367,7 +1382,7 @@ function toggleCodex(show) {
         overlay.style.display = 'none';
     }
 }
-
+ 
 function switchCodexTab(tab) {
     const tabObjets = document.getElementById('tab-objets');
     const tabEvents = document.getElementById('tab-events');
@@ -1398,7 +1413,7 @@ function switchCodexTab(tab) {
         renderEventsCodex();
     }
 }
-
+ 
 function renderEventsCodex() {
     const grid = document.getElementById('events-grid');
     grid.innerHTML = "";
@@ -1736,7 +1751,6 @@ window.addEventListener('message', function(event) {
     if(event.data.type === 'upgrade_bought') {
         log("💎 Amélioration achetée : " + event.data.stat.toUpperCase() + " +" + event.data.bonus, "#9b59b6");
         
-        // Recharger les données depuis localStorage
         permanentUpgrades = JSON.parse(localStorage.getItem('pixelquest_upgrades'));
         upgradesCost = JSON.parse(localStorage.getItem('pixelquest_costs'));
         joueur.gemmes = parseInt(localStorage.getItem('pixelquest_gemmes'));
@@ -1748,34 +1762,29 @@ window.addEventListener('message', function(event) {
 // COLLECTION D'OBJETS
 // ======================
 let selectedCollectionItems = [];
-
+ 
 function openCollection() {
-    // Recharger la sélection depuis localStorage
     loadSelectedItems();
-    
     document.getElementById('collection-overlay').style.display = 'block';
     renderCollection();
 }
 function closeCollection() {
     document.getElementById('collection-overlay').style.display = 'none';
 }
-
+ 
 function renderCollection() {
     const grid = document.getElementById('collection-grid');
     grid.innerHTML = '';
     
     const inventory = JSON.parse(localStorage.getItem('pixelquest_inventory') || '[]');
     
-    // Compter les objets par nom
     const itemCounts = {};
     inventory.forEach(item => {
         itemCounts[item.nom] = (itemCounts[item.nom] || 0) + 1;
     });
     
-    // Créer un set de tous les objets possibles
     const allPossibleItems = [...oCommuns, ...oRares, ...oLeg, ...oUltra, ...oIntel, ...oCheat];
     
-    // Grouper par rareté
     const categories = [
         {title: "COMMUNS", items: oCommuns, color: "#95a5a6"},
         {title: "RARES", items: oRares, color: "#3498db"},
@@ -1799,7 +1808,6 @@ function renderCollection() {
             const count = itemCounts[item.nom] || 0;
             const maxCount = ["commun", "rare", "intel"].includes(item.r) ? 3 : 1;
             
-            // Créer les emplacements
             for(let i = 0; i < maxCount; i++) {
                 const card = createCollectionCard(item, i < count, i);
                 cardsDiv.appendChild(card);
@@ -1812,7 +1820,7 @@ function renderCollection() {
     
     updateCollectionCount();
 }
-
+ 
 function createCollectionCard(item, isOwned, slotIndex) {
     const card = document.createElement('div');
     const itemKey = `${item.nom}-${slotIndex}`;
@@ -1843,15 +1851,13 @@ function createCollectionCard(item, isOwned, slotIndex) {
     
     return card;
 }
-
+ 
 function toggleCollectionSelection(item, itemKey) {
     const index = selectedCollectionItems.findIndex(sel => sel.key === itemKey);
     
     if(index > -1) {
-        // Désélectionner
         selectedCollectionItems.splice(index, 1);
     } else {
-        // Sélectionner
         if(selectedCollectionItems.length >= 3) {
             alert('Tu peux sélectionner maximum 3 objets !');
             return;
@@ -1859,28 +1865,24 @@ function toggleCollectionSelection(item, itemKey) {
         selectedCollectionItems.push({ key: itemKey, item: item });
     }
     
-    // SAUVEGARDER dans localStorage
     const items = selectedCollectionItems.map(sel => sel.item);
     localStorage.setItem('pixelquest_selected_items', JSON.stringify(items));
     
     renderCollection();
 }
-
+ 
 function updateCollectionCount() {
     const count = selectedCollectionItems.length;
     document.getElementById('collection-selected-count').innerText = count;
     document.getElementById('selected-count').innerText = count;
 }
-
+ 
 function startWithSelectedItems() {
-    // Sauvegarder les objets sélectionnés
     const items = selectedCollectionItems.map(sel => sel.item);
     localStorage.setItem('pixelquest_selected_items', JSON.stringify(items));
     
-    // Fermer la collection et afficher le menu de difficulté
     closeCollection();
     
-    // Si aucun objet sélectionné, message optionnel
     if(items.length === 0) {
         const confirm = window.confirm("Tu n'as sélectionné aucun objet. Commencer quand même ?");
         if(!confirm) return;
@@ -1911,6 +1913,6 @@ function startWithSelectedItems() {
             </button>
         </div>
     </div>
-
+ 
 </body>
-</html>
+</html
