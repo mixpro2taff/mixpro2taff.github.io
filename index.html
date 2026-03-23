@@ -195,19 +195,58 @@
     <div id="start-menu">
     <h1 style="color: var(--accent); font-size: 4em;">PIXEL QUEST</h1>
     <p>SÉLECTIONNE TA DIFFICULTÉ</p>
+
+    <!-- Ligne 1 -->
     <div style="margin-top: 20px;">
-       <button class="btn" onclick="startGame('facile')">FACILE (Or x1.5)</button>
-       <button class="btn" onclick="startGame('normal')" style="margin: 0 15px;">NORMAL</button>
-       <button class="btn" onclick="startGame('difficile')">DIFFICILE (Ennemis x1.5)</button>
+        <button class="btn" onclick="startGame('tres_facile')">
+            TRÈS FACILE (Or x1.5)
+        </button>
+
+        <button class="btn" onclick="startGame('facile')" style="margin: 0 10px;">
+            FACILE
+        </button>
+
+        <button class="btn" onclick="startGame('normal')" style="margin: 0 10px;">
+            NORMAL (Ennemis x1.5)
+        </button>
+
+        <button class="btn" onclick="startGame('difficile')">
+            DIFFICILE (Ennemis x2)
+        </button>
     </div>
+
+    <!-- Ligne 2 -->
     <div style="margin-top: 10px;">
-       <button class="btn" onclick="startGame('impossible')" style="border-color: #e74c3c; color: #e74c3c;">IMPOSSIBLE (Ennemis x2)</button>
-       <button class="btn" onclick="startGame('enfer')" style="margin-left: 15px; border-color: #8e44ad; color: #8e44ad;">ENFER (Ennemis x3, Boss x1.5)</button>
+        <button class="btn" onclick="startGame('tres_difficile')">
+            TRÈS DIFFICILE (Ennemis x3, Boss x1.5)
+        </button>
+
+        <button class="btn" onclick="startGame('pro')" style="margin: 0 10px; border-color: #f39c12; color: #f39c12;">
+            PRO (Ennemis x4, boss x2, nerf 10% PV/att)
+        </button>
+
+        <button class="btn" onclick="startGame('impossible')" style="margin: 0 10px; border-color: #e74c3c; color: #e74c3c;">
+            IMPOSSIBLE (Ennemis x5, boss x2,5, nerf 20% PV/att)
+        </button>
+
+        <button class="btn" onclick="startGame('enfer')" style="border-color: #8e44ad; color: #8e44ad;">
+            ENFER (Ennemis x6, boss x3, nerf 30% PV/att)
+        </button>
     </div>
+
+    <!-- Ligne 3 -->
+    <div style="margin-top: 10px;">
+        <button class="btn" onclick="startGame('apocalypse')" style="border-color: #2c3e50; color: #2c3e50;">
+            APOCALYPSE (Ennemis x8, boss x4, nerf 50% PV/attaque, nerf 25% regen/or)
+        </button>
+    </div>
+
+    <!-- Collection -->
     <div style="margin-top: 30px;">
         <button class="btn" onclick="openCollection()" style="border-color: #9b59b6; color: #9b59b6;">
             📦 COLLECTION (<span id="selected-count">0</span>/3)
         </button>
+    </div>
     </div>
 </div>
 
@@ -461,11 +500,15 @@ function checkDailyGems() {
 // ======================
 function startGame(mode) {
     document.getElementById('collection-overlay').style.display = 'none';
-    if(mode === 'facile') diffSetting = { name: 'FACILE', gold: 1.5, enemy: 1, boss: 1, def : 1 };
-    if(mode === 'normal') diffSetting = { name: 'NORMAL', gold: 1, enemy: 1, boss: 1, def : 1};
-    if(mode === 'difficile') diffSetting = { name: 'DIFFICILE', gold: 1, enemy: 1.5, boss: 1.25, def : 2};
-    if(mode === 'impossible') diffSetting = { name: 'IMPOSSIBLE', gold: 1, enemy: 2, boss: 1.5, def : 3};
-    if(mode === 'enfer') diffSetting = { name: 'ENFER', gold: 1, enemy: 3, boss: 2.5, def : 5};
+    if(mode === 'tres facile') diffSetting = { name: 'TRES FACILE', gold: 1.5, enemy: 1, boss: 1, def : 1 };
+    if(mode === 'facile') diffSetting = { name: 'FACILE', gold: 1, enemy: 1, boss: 1, def : 1 };
+    if(mode === 'normal') diffSetting = { name: 'NORMAL', gold: 1, enemy: 1.5, boss: 1, def : 1};
+    if(mode === 'difficile') diffSetting = { name: 'DIFFICILE', gold: 1, enemy: 2, boss: 1, def : 2};
+    if(mode === 'tres difficile') diffSetting = { name: 'TRES DIFFICILE', gold: 1, enemy: 3, boss: 1.5, def : 3};
+    if(mode === 'pro') diffSetting = { name: 'PRO', gold: 1, enemy: 4, boss: 2, def : 5 };
+    if(mode === 'impossible') diffSetting = { name: 'IMPOSSIBLE', gold: 1, enemy: 5, boss: 2.5, def : 8};
+    if(mode === 'enfer') diffSetting = { name: 'ENFER', gold: 1, enemy: 6, boss: 3, def : 10};
+    if(mode === 'apocalypse') diffSetting = { name: 'APOCALYPSE', gold: 1, enemy: 8, boss: 4, def : 15 };
     
     joueur.gemmes = parseInt(localStorage.getItem('pixelquest_gemmes') || '0');
     checkDailyGems();
