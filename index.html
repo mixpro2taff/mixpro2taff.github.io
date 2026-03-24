@@ -241,9 +241,12 @@
         <button class="btn" onclick="startGame('enfer')" style="border-color: #8e44ad; color: #8e44ad;">ENFER</button>
     </div>
 
-    <!-- Ligne 3 : APOCALYPSE seul -->
-    <div style="margin-top: 10px; display: flex; justify-content: center;">
+    <!-- Ligne 4 : APOCALYPSE 1, 2, 3 -->
+    <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
         <button class="btn" onclick="startGame('apocalypse')" style="border-color: #636e72; color: #636e72;">APOCALYPSE</button>
+        <button class="btn" onclick="startGame('apocalypse2')" style="border-color: #2c3e50; color: #2c3e50;">APOCALYPSE II</button>
+        <button class="btn" onclick="startGame('apocalypse3')" style="border-color: #1a1a2e; color: #1a1a2e;">APOCALYPSE III</button>
+        <button class="btn" onclick="startGame('apocalypse4')" style="border-color: #1a1a2e; color: #1a1a2e;">APOCALYPSE IV</button>
     </div>
 
     <!-- Collection + Info Difficulté -->
@@ -299,6 +302,18 @@
         <div class="diff-info-row">
             <div class="diff-info-name" style="color:#636e72;">APOCALYPSE</div>
             <div class="diff-info-desc">Ennemis ×8 — Boss ×4 — Nerf −50% PV et Attaque au départ — Nerf −25% Regen et Or de départ</div>
+        </div>
+        <div class="diff-info-row">
+            <div class="diff-info-name" style="color:#636e72;">APOCALYPSE II</div>
+            <div class="diff-info-desc">Ennemis x10 — Boss ×5 — Nerf −50% PV et Attaque au départ — Nerf −50% Regen et Or de départ</div>
+        </div>
+        <div class="diff-info-row">
+            <div class="diff-info-name" style="color:#636e72;">APOCALYPSE III</div>
+            <div class="diff-info-desc">Ennemis ×12 — Boss ×6 — Nerf −75% PV et Attaque au départ — Nerf −50% Regen et Or de départ</div>
+        </div>
+        <div class="diff-info-row">
+            <div class="diff-info-name" style="color:#636e72;">APOCALYPSE IV</div>
+            <div class="diff-info-desc">Ennemis ×14 — Boss ×8 — Nerf −75% PV et Attaque au départ — Nerf −75% Regen et Or de départ</div>
         </div>
 
         <div style="text-align:center; margin-top: 30px;">
@@ -564,6 +579,9 @@ function startGame(mode) {
     if(mode === 'impossible') diffSetting = { name: 'IMPOSSIBLE', gold: 1, enemy: 5, boss: 2.5, def: 8, nerfPv: 0.20, nerfAtt: 0.20, nerfRegen: 0, nerfOr: 0 };
     if(mode === 'enfer') diffSetting = { name: 'ENFER', gold: 1, enemy: 6, boss: 3, def: 10, nerfPv: 0.30, nerfAtt: 0.30, nerfRegen: 0, nerfOr: 0 };
     if(mode === 'apocalypse') diffSetting = { name: 'APOCALYPSE', gold: 1, enemy: 8, boss: 4, def: 15, nerfPv: 0.50, nerfAtt: 0.50, nerfRegen: 0.25, nerfOr: 0.25 };
+    if(mode === 'apocalypse2') diffSetting = { name: 'APOCALYPSE II', gold: 1, enemy: 10, boss: 5, def: 25, nerfPv: 0.50, nerfAtt: 0.50, nerfRegen: 0.5, nerfOr: 0.5 };
+    if(mode === 'apocalypse3') diffSetting = { name: 'APOCALYPSE III', gold: 1, enemy: 12, boss: 6, def: 30, nerfPv: 0.75, nerfAtt: 0.75, nerfRegen: 0.5, nerfOr: 0.5 };
+    if(mode === 'apocalypse4') diffSetting = { name: 'APOCALYPSE IV', gold: 1, enemy: 14, boss: 8, def: 40, nerfPv: 0.75, nerfAtt: 0.75, nerfRegen: 0.75, nerfOr: 0.75 };
     
     joueur.gemmes = parseInt(localStorage.getItem('pixelquest_gemmes') || '0');
     checkDailyGems();
