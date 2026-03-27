@@ -2,7 +2,8 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>PIXEL QUEST - v2.1.3 </title>
+    <title>PIXEL QUEST - v2.1.3</title>
+
     <style>
         :root {
             --bg-color: #08080c;
@@ -22,531 +23,79 @@
             user-select: none;
         }
 
-        /* ── MENUS ── */
         #start-menu {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 2000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* ── STATS BAR ── */
         .stats-bar {
             display: flex; justify-content: space-around; width: 950px;
             border: 4px double #fff; padding: 15px; background: #000; margin-bottom: 20px;
         }
+
         .stat-item { text-align: center; flex: 1; }
         .stat-label { font-size: 0.7em; color: #888; text-transform: uppercase; }
         .stat-value { font-size: 1.2em; font-weight: bold; color: var(--accent); }
 
-        /* ── ZONES ── */
         #game-screen {
-            width: 950px; height: 350px; background: #000; border: 2px solid #222;
-            padding: 20px; overflow-y: auto; box-sizing: border-box; margin-bottom: 20px;
+            width: 950px; height: 350px; background: #000;
+            border: 2px solid #222; padding: 20px;
+            overflow-y: auto; margin-bottom: 20px;
         }
+
         #merchant-area {
-            display: none; width: 950px; background: #050505; border: 2px dashed var(--accent);
-            padding: 20px; box-sizing: border-box; text-align: center; margin-bottom: 20px;
+            display: none; width: 950px; background: #050505;
+            border: 2px dashed var(--accent);
+            padding: 20px; margin-bottom: 20px;
         }
 
-        /* ── CARTES ── */
-        .cards-container { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; }
-
-        .item-card {
-            background: var(--card-bg); border: 2px solid #333; padding: 12px;
-            width: 180px; min-height: 220px; display: flex; flex-direction: column;
-            transition: all 0.3s ease; position: relative; text-align: left;
-        }
-        .item-card:hover { transform: translateY(-5px); background: #000; }
-        .rarity-commun:hover    { border-color: #95a5a6; box-shadow: 0 0 15px #95a5a6; }
-        .rarity-rare:hover      { border-color: #3498db; box-shadow: 0 0 15px #3498db; }
-        .rarity-legendaire:hover{ border-color: #f1c40f; box-shadow: 0 0 15px #f1c40f; }
-        .rarity-ultra:hover     { border-color: #9b59b6; box-shadow: 0 0 15px #9b59b6; }
-        .rarity-intel:hover     { border-color: #2ecc71; box-shadow: 0 0 15px #2ecc71; }
-        .rarity-cheat:hover     { border-color: #e74c3c; box-shadow: 0 0 25px #e74c3c; }
-
-        .card-name  { font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 10px; font-size: 0.9em; color: #fff; }
-        .card-stats { flex-grow: 1; font-size: 0.75em; line-height: 1.4; color: #bbb; }
-        .card-stats span { color: #2ecc71; }
-        .card-capa  { color: #e67e22; font-style: italic; margin-top: 5px; font-size: 0.85em; }
-        .owned-tag  { color: #2ecc71; font-weight: bold; font-size: 0.7em; margin-top: 5px; }
-        .possessed-card { border-color: #2ecc71 !important; box-shadow: inset 0 0 10px rgba(46,204,113,0.2); }
-
-        /* ── BOUTONS ── */
         .btn {
             background: #000; color: #fff; border: 2px solid #fff;
-            padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: bold;
+            padding: 10px 20px; cursor: pointer;
+            font-family: inherit; font-weight: bold;
         }
-        .btn:hover    { background: #fff; color: #000; }
-        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        .codex-tab-btn   { position: fixed; bottom: 20px; right: 20px; border-color: var(--accent); color: var(--accent); }
-        .boutique-tab-btn{ position: fixed; bottom: 20px; left: 20px; border-color: #9b59b6; color: #9b59b6; z-index: 999; }
 
-        /* ── LOG ── */
-        .log-entry { margin-bottom: 5px; border-left: 2px solid #333; padding-left: 10px; font-size: 0.9em; }
-
-        /* ── OVERLAYS ── */
-        #codex-overlay, #collection-overlay, #diff-info-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.98); padding: 40px; box-sizing: border-box; overflow-y: auto;
-        }
-        #codex-overlay     { z-index: 1000; }
-        #collection-overlay{ z-index: 3000; }
-        #diff-info-overlay  { z-index: 3000; }
-
-        /* ── COLLECTION ── */
-        .collection-card {
-            background: var(--card-bg); border: 2px solid #333; padding: 12px; width: 180px;
-            min-height: 220px; display: flex; flex-direction: column; transition: all 0.3s ease;
-            cursor: pointer; position: relative; opacity: 0.3; filter: grayscale(100%);
-        }
-        .collection-card.owned { opacity: 1; filter: grayscale(0%); }
-        .collection-card.owned:hover { transform: translateY(-5px); background: #000; }
-
-        .collection-card.selected { opacity: 1 !important; filter: grayscale(0%) !important; }
-        .collection-card.selected.rarity-commun    { border-color: #95a5a6; box-shadow: 0 0 20px #95a5a6; }
-        .collection-card.selected.rarity-rare      { border-color: #3498db; box-shadow: 0 0 20px #3498db; }
-        .collection-card.selected.rarity-legendaire{ border-color: #f1c40f; box-shadow: 0 0 20px #f1c40f; }
-        .collection-card.selected.rarity-ultra     { border-color: #9b59b6; box-shadow: 0 0 20px #9b59b6; }
-        .collection-card.selected.rarity-intel     { border-color: #2ecc71; box-shadow: 0 0 20px #2ecc71; }
-        .collection-card.selected.rarity-cheat     { border-color: #e74c3c; box-shadow: 0 0 25px #e74c3c; }
-
-        .card-count { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.8); color: #fff; padding: 3px 8px; border-radius: 3px; font-size: 0.7em; font-weight: bold; }
-        .selected-indicator { position: absolute; top: 5px; left: 5px; background: var(--accent); color: #000; padding: 3px 8px; border-radius: 3px; font-size: 0.7em; font-weight: bold; }
-
-        /* ── INFO DIFFICULTÉ ── */
-        .diff-info-row { display: flex; align-items: flex-start; border-bottom: 1px solid #222; padding: 14px 0; gap: 20px; }
-        .diff-info-name { min-width: 180px; font-weight: bold; font-size: 1em; }
-        .diff-info-desc { font-size: 0.85em; color: #bbb; line-height: 1.7; }
+        .btn:hover { background: #fff; color: #000; }
     </style>
 </head>
+
 <body>
 
-<!-- ══════════════════════════════════════════
-     MENU DE DÉMARRAGE
-══════════════════════════════════════════ -->
+<!-- MENU -->
 <div id="start-menu">
     <h1 style="color: var(--accent); font-size: 4em;">PIXEL QUEST</h1>
     <p>SÉLECTIONNE TA DIFFICULTÉ</p>
 
-    <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-        <button class="btn" onclick="startGame('tres_facile')">TRÈS FACILE</button>
-        <button class="btn" onclick="startGame('facile')">FACILE</button>
-        <button class="btn" onclick="startGame('normal')">NORMAL</button>
-        <button class="btn" onclick="startGame('difficile')">DIFFICILE</button>
-    </div>
-
-    <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-        <button class="btn" onclick="startGame('tres_difficile')" style="border-color:#2ecc71; color:#2ecc71">TRÈS DIFFICILE</button>
-        <button class="btn" onclick="startGame('pro')"            style="border-color:#3498db; color:#3498db">PRO</button>
-        <button class="btn" onclick="startGame('impossible')"     style="border-color:#f1c40f; color:#f1c40f">IMPOSSIBLE</button>
-        <button class="btn" onclick="startGame('enfer')"          style="border-color:#e67e22; color:#e67e22">ENFER</button>
-    </div>
-
-    <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-        <button class="btn" onclick="startGame('apocalypse')"  style="border-color:#e74c3c; color:#e74c3c">APOCALYPSE</button>
-        <button class="btn" onclick="startGame('apocalypse2')" style="border-color:#922b21; color:#922b21">APOCALYPSE II</button>
-        <button class="btn" onclick="startGame('apocalypse3')" style="border-color:#c0392b; color:#c0392b">APOCALYPSE III</button>
-        <button class="btn" onclick="startGame('apocalypse4')" style="border-color:#8e44ad; color:#8e44ad">APOCALYPSE IV</button>
-    </div>
-
-    <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center;">
-        <button class="btn" onclick="openCollection()" style="border-color:#9b59b6; color:#9b59b6;">
-            📦 COLLECTION (<span id="selected-count">0</span>/3)
-        </button>
-        <button class="btn" onclick="openDiffInfo()" style="border-color:var(--accent); color:var(--accent);">
-            📋 INFO DIFFICULTÉ
-        </button>
-    </div>
+    <button class="btn" onclick="startGame('facile')">FACILE</button>
+    <button class="btn" onclick="startGame('normal')">NORMAL</button>
+    <button class="btn" onclick="startGame('difficile')">DIFFICILE</button>
 </div>
 
-<!-- ══════════════════════════════════════════
-     OVERLAY INFO DIFFICULTÉ
-══════════════════════════════════════════ -->
-<div id="diff-info-overlay">
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--accent); padding-bottom:15px; margin-bottom:25px;">
-        <h1 style="margin:0; color:var(--accent);">📋 INFOS DIFFICULTÉ</h1>
-        <button class="btn" onclick="closeDiffInfo()">FERMER ✖</button>
-    </div>
-
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#fff;">TRÈS FACILE</div>   <div class="diff-info-desc">Or de départ ×1.5</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#fff;">FACILE</div>         <div class="diff-info-desc">Pas de modificateur</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#fff;">NORMAL</div>         <div class="diff-info-desc">Ennemis ×1.5</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#fff;">DIFFICILE</div>      <div class="diff-info-desc">Ennemis ×2 — Défense au début : 2</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#fff;">TRÈS DIFFICILE</div> <div class="diff-info-desc">Ennemis ×3 — Boss ×1.5 — Défense au début : 3</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#f39c12;">PRO</div>         <div class="diff-info-desc">Ennemis ×4 — Boss ×2 — Nerf −10% PV et Attaque au départ — Défense : 5</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#e74c3c;">IMPOSSIBLE</div>  <div class="diff-info-desc">Ennemis ×5 — Boss ×2.5 — Nerf −20% PV et Attaque — Défense : 8</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#8e44ad;">ENFER</div>       <div class="diff-info-desc">Ennemis ×6 — Boss ×3 — Nerf −30% PV et Attaque — Défense : 10</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#636e72;">APOCALYPSE</div>  <div class="diff-info-desc">Ennemis ×8 — Boss ×4 — Nerf −50% PV/Att — Nerf −25% Regen/Or — Défense : 15</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#636e72;">APOCALYPSE II</div>  <div class="diff-info-desc">Ennemis ×10 — Boss ×5 — Nerf −50% PV/Att — Nerf −50% Regen/Or — Défense : 25</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#636e72;">APOCALYPSE III</div> <div class="diff-info-desc">Ennemis ×12 — Boss ×6 — Nerf −75% PV/Att — Nerf −50% Regen/Or — Défense : 30</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#636e72;">APOCALYPSE IV</div>  <div class="diff-info-desc">Ennemis ×14 — Boss ×8 — Nerf −75% PV/Att — Nerf −75% Regen/Or — Défense : 40</div></div>
-
-    <div style="text-align:center; margin-top:30px;">
-        <button class="btn" onclick="closeDiffInfo()" style="border-color:var(--accent); color:var(--accent); padding:12px 40px; font-size:1.1em;">FERMER ✖</button>
-    </div>
-</div>
-
-<!-- ══════════════════════════════════════════
-     BARRE DE STATS
-══════════════════════════════════════════ -->
+<!-- STATS -->
 <div class="stats-bar">
-    <div class="stat-item"><div class="stat-label">Jour</div>   <div id="stat-jour"   class="stat-value">1</div></div>
-    <div class="stat-item"><div class="stat-label">Santé</div>  <div id="stat-pv"     class="stat-value" style="color:#ff4757">100</div></div>
-    <div class="stat-item"><div class="stat-label">Or</div>     <div id="stat-or"     class="stat-value">40</div></div>
-    <div class="stat-item"><div class="stat-label">Attaque</div><div id="stat-att"    class="stat-value">8</div></div>
-    <div class="stat-item"><div class="stat-label">Défense</div><div id="stat-def"    class="stat-value">3.00</div></div>
-    <div class="stat-item"><div class="stat-label">Regen</div>  <div id="stat-regen"  class="stat-value">20</div></div>
-    <div class="stat-item"><div class="stat-label">Intel</div>  <div id="stat-int"    class="stat-value">0</div></div>
-    <div class="stat-item"><div class="stat-label">Gemmes</div> <div id="stat-gemmes" class="stat-value">0</div></div>
+    <div class="stat-item"><div>Jour</div><div id="stat-jour">1</div></div>
+    <div class="stat-item"><div>PV</div><div id="stat-pv">100</div></div>
+    <div class="stat-item"><div>Or</div><div id="stat-or">40</div></div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     ÉCRAN DE JEU + MARCHAND
-══════════════════════════════════════════ -->
+<!-- GAME -->
 <div id="game-screen"></div>
 
 <div id="merchant-area">
-    <h2 style="margin:0 0 15px 0;">🛒 MARCHAND</h2>
-    <div id="merchant-cards" class="cards-container"></div>
-    <button class="btn" onclick="finishDay()" style="margin-top:15px; border-color:var(--accent);">Continuer</button>
+    <h2>Marchand</h2>
+    <div id="merchant-cards"></div>
+    <button class="btn" onclick="finishDay()">Continuer</button>
 </div>
 
-<button id="btn-next" class="btn" onclick="playTurn()" style="width:950px; font-size:1.4em;">Lancer Jour 1</button>
-<button class="btn codex-tab-btn"    onclick="toggleCodex(true)">📖 CODEX</button>
-<button class="btn boutique-tab-btn" onclick="toggleBoutique(true)">💎 BOUTIQUE</button>
+<button class="btn" onclick="playTurn()">Lancer Jour</button>
 
-<!-- ══════════════════════════════════════════
-     CODEX
-══════════════════════════════════════════ -->
-<div id="codex-overlay">
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--accent); padding-bottom:15px; margin-bottom:20px;">
-        <h1 style="margin:0; color:var(--accent);">CODEX</h1>
-        <button class="btn" onclick="toggleCodex(false)">FERMER ✖</button>
-    </div>
-
-    <div style="display:flex; gap:10px; margin-bottom:20px;">
-        <button class="btn" id="tab-objets" onclick="switchCodexTab('objets')" style="border-color:var(--accent); background:var(--accent); color:#000;">📦 OBJETS</button>
-        <button class="btn" id="tab-events" onclick="switchCodexTab('events')">🎲 EVENTS</button>
-    </div>
-
-    <div id="codex-objets-content">
-        <h3 style="color:#2ecc71;">★ CAPACITÉS : <span id="my-capas-list" style="color:#fff; font-size:0.8em;">Aucune</span></h3>
-        <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
-        <div id="codex-grid" class="cards-container"></div>
-    </div>
-
-    <div id="codex-events-content" style="display:none;">
-        <div id="events-grid"></div>
-    </div>
-</div>
-
-<!-- ══════════════════════════════════════════
-     COLLECTION D'OBJETS
-══════════════════════════════════════════ -->
-<div id="collection-overlay">
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--accent); padding-bottom:15px; margin-bottom:20px;">
-        <h1 style="margin:0; color:var(--accent);">📦 COLLECTION D'OBJETS</h1>
-        <button class="btn" onclick="closeCollection()">FERMER ✖</button>
-    </div>
-
-    <p style="color:#bbb; margin-bottom:20px; text-align:center;">
-        Sélectionne jusqu'à 3 objets pour commencer ta partie. Les cartes grisées n'ont pas encore été obtenues.
-    </p>
-
-    <div style="text-align:center; margin-bottom:20px;">
-        <span style="color:var(--accent); font-size:1.2em; font-weight:bold;">
-            Objets sélectionnés : <span id="collection-selected-count">0</span> / 3
-        </span>
-    </div>
-
-    <div id="collection-grid" class="cards-container" style="margin-bottom:30px;"></div>
-
-    <div style="text-align:center;">
-        <button class="btn" onclick="closeCollection()" style="font-size:1.2em; padding:15px 40px; border-color:var(--accent); color:var(--accent);">
-            SAUVEGARDER ET FERMER ✓
-        </button>
-    </div>
-</div>
-
-<!-- ══════════════════════════════════════════
-     SCRIPTS (ordre important)
-══════════════════════════════════════════ -->
-<html lang="fr">
-<head>
-    <style>
-        :root {
-            --bg-color: #08080c;
-            --card-bg: #111116;
-            --accent: #f1c40f;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: #fff;
-            font-family: 'Courier New', Courier, monospace;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            margin: 0;
-            user-select: none;
-        }
-
-        /* ── MENUS ── */
-        #start-menu {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 2000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-
-        /* ── STATS BAR ── */
-        .stats-bar {
-            display: flex; justify-content: space-around; width: 950px;
-            border: 4px double #fff; padding: 15px; background: #000; margin-bottom: 20px;
-        }
-        .stat-item { text-align: center; flex: 1; }
-        .stat-label { font-size: 0.7em; color: #888; text-transform: uppercase; }
-        .stat-value { font-size: 1.2em; font-weight: bold; color: var(--accent); }
-
-        /* ── ZONES ── */
-        #game-screen {
-            width: 950px; height: 350px; background: #000; border: 2px solid #222;
-            padding: 20px; overflow-y: auto; box-sizing: border-box; margin-bottom: 20px;
-        }
-        #merchant-area {
-            display: none; width: 950px; background: #050505; border: 2px dashed var(--accent);
-            padding: 20px; box-sizing: border-box; text-align: center; margin-bottom: 20px;
-        }
-
-        /* ── CARTES ── */
-        .cards-container { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; }
-
-        .item-card {
-            background: var(--card-bg); border: 2px solid #333; padding: 12px;
-            width: 180px; min-height: 220px; display: flex; flex-direction: column;
-            transition: all 0.3s ease; position: relative; text-align: left;
-        }
-        .item-card:hover { transform: translateY(-5px); background: #000; }
-        .rarity-commun:hover    { border-color: #95a5a6; box-shadow: 0 0 15px #95a5a6; }
-        .rarity-rare:hover      { border-color: #3498db; box-shadow: 0 0 15px #3498db; }
-        .rarity-legendaire:hover{ border-color: #f1c40f; box-shadow: 0 0 15px #f1c40f; }
-        .rarity-ultra:hover     { border-color: #9b59b6; box-shadow: 0 0 15px #9b59b6; }
-        .rarity-intel:hover     { border-color: #2ecc71; box-shadow: 0 0 15px #2ecc71; }
-        .rarity-cheat:hover     { border-color: #e74c3c; box-shadow: 0 0 25px #e74c3c; }
-
-        .card-name  { font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 10px; font-size: 0.9em; color: #fff; }
-        .card-stats { flex-grow: 1; font-size: 0.75em; line-height: 1.4; color: #bbb; }
-        .card-stats span { color: #2ecc71; }
-        .card-capa  { color: #e67e22; font-style: italic; margin-top: 5px; font-size: 0.85em; }
-        .owned-tag  { color: #2ecc71; font-weight: bold; font-size: 0.7em; margin-top: 5px; }
-        .possessed-card { border-color: #2ecc71 !important; box-shadow: inset 0 0 10px rgba(46,204,113,0.2); }
-
-        /* ── BOUTONS ── */
-        .btn {
-            background: #000; color: #fff; border: 2px solid #fff;
-            padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: bold;
-        }
-        .btn:hover    { background: #fff; color: #000; }
-        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        .codex-tab-btn   { position: fixed; bottom: 20px; right: 20px; border-color: var(--accent); color: var(--accent); }
-        .boutique-tab-btn{ position: fixed; bottom: 20px; left: 20px; border-color: #9b59b6; color: #9b59b6; z-index: 999; }
-
-        /* ── LOG ── */
-        .log-entry { margin-bottom: 5px; border-left: 2px solid #333; padding-left: 10px; font-size: 0.9em; }
-
-        /* ── OVERLAYS ── */
-        #codex-overlay, #collection-overlay, #diff-info-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.98); padding: 40px; box-sizing: border-box; overflow-y: auto;
-        }
-        #codex-overlay     { z-index: 1000; }
-        #collection-overlay{ z-index: 3000; }
-        #diff-info-overlay  { z-index: 3000; }
-
-        /* ── COLLECTION ── */
-        .collection-card {
-            background: var(--card-bg); border: 2px solid #333; padding: 12px; width: 180px;
-            min-height: 220px; display: flex; flex-direction: column; transition: all 0.3s ease;
-            cursor: pointer; position: relative; opacity: 0.3; filter: grayscale(100%);
-        }
-        .collection-card.owned { opacity: 1; filter: grayscale(0%); }
-        .collection-card.owned:hover { transform: translateY(-5px); background: #000; }
-
-        .collection-card.selected { opacity: 1 !important; filter: grayscale(0%) !important; }
-        .collection-card.selected.rarity-commun    { border-color: #95a5a6; box-shadow: 0 0 20px #95a5a6; }
-        .collection-card.selected.rarity-rare      { border-color: #3498db; box-shadow: 0 0 20px #3498db; }
-        .collection-card.selected.rarity-legendaire{ border-color: #f1c40f; box-shadow: 0 0 20px #f1c40f; }
-        .collection-card.selected.rarity-ultra     { border-color: #9b59b6; box-shadow: 0 0 20px #9b59b6; }
-        .collection-card.selected.rarity-intel     { border-color: #2ecc71; box-shadow: 0 0 20px #2ecc71; }
-        .collection-card.selected.rarity-cheat     { border-color: #e74c3c; box-shadow: 0 0 25px #e74c3c; }
-
-        .card-count { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.8); color: #fff; padding: 3px 8px; border-radius: 3px; font-size: 0.7em; font-weight: bold; }
-        .selected-indicator { position: absolute; top: 5px; left: 5px; background: var(--accent); color: #000; padding: 3px 8px; border-radius: 3px; font-size: 0.7em; font-weight: bold; }
-
-        /* ── INFO DIFFICULTÉ ── */
-        .diff-info-row { display: flex; align-items: flex-start; border-bottom: 1px solid #222; padding: 14px 0; gap: 20px; }
-        .diff-info-name { min-width: 180px; font-weight: bold; font-size: 1em; }
-        .diff-info-desc { font-size: 0.85em; color: #bbb; line-height: 1.7; }
-    </style>
-</head>
-<body>
-
-<!-- ══════════════════════════════════════════
-     MENU DE DÉMARRAGE
-══════════════════════════════════════════ -->
-<div id="start-menu">
-    <h1 style="color: var(--accent); font-size: 4em;">PIXEL QUEST</h1>
-    <p>SÉLECTIONNE TA DIFFICULTÉ</p>
-
-    <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-        <button class="btn" onclick="startGame('tres_facile')">TRÈS FACILE</button>
-        <button class="btn" onclick="startGame('facile')">FACILE</button>
-        <button class="btn" onclick="startGame('normal')">NORMAL</button>
-        <button class="btn" onclick="startGame('difficile')">DIFFICILE</button>
-    </div>
-
-    <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-        <button class="btn" onclick="startGame('tres_difficile')" style="border-color:#2ecc71; color:#2ecc71">TRÈS DIFFICILE</button>
-        <button class="btn" onclick="startGame('pro')"            style="border-color:#3498db; color:#3498db">PRO</button>
-        <button class="btn" onclick="startGame('impossible')"     style="border-color:#f1c40f; color:#f1c40f">IMPOSSIBLE</button>
-        <button class="btn" onclick="startGame('enfer')"          style="border-color:#e67e22; color:#e67e22">ENFER</button>
-    </div>
-
-    <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-        <button class="btn" onclick="startGame('apocalypse')"  style="border-color:#e74c3c; color:#e74c3c">APOCALYPSE</button>
-        <button class="btn" onclick="startGame('apocalypse2')" style="border-color:#922b21; color:#922b21">APOCALYPSE II</button>
-        <button class="btn" onclick="startGame('apocalypse3')" style="border-color:#c0392b; color:#c0392b">APOCALYPSE III</button>
-        <button class="btn" onclick="startGame('apocalypse4')" style="border-color:#8e44ad; color:#8e44ad">APOCALYPSE IV</button>
-    </div>
-
-    <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center;">
-        <button class="btn" onclick="openCollection()" style="border-color:#9b59b6; color:#9b59b6;">
-            📦 COLLECTION (<span id="selected-count">0</span>/3)
-        </button>
-        <button class="btn" onclick="openDiffInfo()" style="border-color:var(--accent); color:var(--accent);">
-            📋 INFO DIFFICULTÉ
-        </button>
-    </div>
-</div>
-
-<!-- ══════════════════════════════════════════
-     OVERLAY INFO DIFFICULTÉ
-══════════════════════════════════════════ -->
-<div id="diff-info-overlay">
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--accent); padding-bottom:15px; margin-bottom:25px;">
-        <h1 style="margin:0; color:var(--accent);">📋 INFOS DIFFICULTÉ</h1>
-        <button class="btn" onclick="closeDiffInfo()">FERMER ✖</button>
-    </div>
-
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#fff;">TRÈS FACILE</div>   <div class="diff-info-desc">Or de départ ×1.5</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#fff;">FACILE</div>         <div class="diff-info-desc">Pas de modificateur</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#fff;">NORMAL</div>         <div class="diff-info-desc">Ennemis ×1.5</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#fff;">DIFFICILE</div>      <div class="diff-info-desc">Ennemis ×2 — Défense au début : 2</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#fff;">TRÈS DIFFICILE</div> <div class="diff-info-desc">Ennemis ×3 — Boss ×1.5 — Défense au début : 3</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#f39c12;">PRO</div>         <div class="diff-info-desc">Ennemis ×4 — Boss ×2 — Nerf −10% PV et Attaque au départ — Défense : 5</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#e74c3c;">IMPOSSIBLE</div>  <div class="diff-info-desc">Ennemis ×5 — Boss ×2.5 — Nerf −20% PV et Attaque — Défense : 8</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#8e44ad;">ENFER</div>       <div class="diff-info-desc">Ennemis ×6 — Boss ×3 — Nerf −30% PV et Attaque — Défense : 10</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#636e72;">APOCALYPSE</div>  <div class="diff-info-desc">Ennemis ×8 — Boss ×4 — Nerf −50% PV/Att — Nerf −25% Regen/Or — Défense : 15</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#636e72;">APOCALYPSE II</div>  <div class="diff-info-desc">Ennemis ×10 — Boss ×5 — Nerf −50% PV/Att — Nerf −50% Regen/Or — Défense : 25</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#636e72;">APOCALYPSE III</div> <div class="diff-info-desc">Ennemis ×12 — Boss ×6 — Nerf −75% PV/Att — Nerf −50% Regen/Or — Défense : 30</div></div>
-    <div class="diff-info-row"><div class="diff-info-name" style="color:#636e72;">APOCALYPSE IV</div>  <div class="diff-info-desc">Ennemis ×14 — Boss ×8 — Nerf −75% PV/Att — Nerf −75% Regen/Or — Défense : 40</div></div>
-
-    <div style="text-align:center; margin-top:30px;">
-        <button class="btn" onclick="closeDiffInfo()" style="border-color:var(--accent); color:var(--accent); padding:12px 40px; font-size:1.1em;">FERMER ✖</button>
-    </div>
-</div>
-
-<!-- ══════════════════════════════════════════
-     BARRE DE STATS
-══════════════════════════════════════════ -->
-<div class="stats-bar">
-    <div class="stat-item"><div class="stat-label">Jour</div>   <div id="stat-jour"   class="stat-value">1</div></div>
-    <div class="stat-item"><div class="stat-label">Santé</div>  <div id="stat-pv"     class="stat-value" style="color:#ff4757">100</div></div>
-    <div class="stat-item"><div class="stat-label">Or</div>     <div id="stat-or"     class="stat-value">40</div></div>
-    <div class="stat-item"><div class="stat-label">Attaque</div><div id="stat-att"    class="stat-value">8</div></div>
-    <div class="stat-item"><div class="stat-label">Défense</div><div id="stat-def"    class="stat-value">3.00</div></div>
-    <div class="stat-item"><div class="stat-label">Regen</div>  <div id="stat-regen"  class="stat-value">20</div></div>
-    <div class="stat-item"><div class="stat-label">Intel</div>  <div id="stat-int"    class="stat-value">0</div></div>
-    <div class="stat-item"><div class="stat-label">Gemmes</div> <div id="stat-gemmes" class="stat-value">0</div></div>
-</div>
-
-<!-- ══════════════════════════════════════════
-     ÉCRAN DE JEU + MARCHAND
-══════════════════════════════════════════ -->
-<div id="game-screen"></div>
-
-<div id="merchant-area">
-    <h2 style="margin:0 0 15px 0;">🛒 MARCHAND</h2>
-    <div id="merchant-cards" class="cards-container"></div>
-    <button class="btn" onclick="finishDay()" style="margin-top:15px; border-color:var(--accent);">Continuer</button>
-</div>
-
-<button id="btn-next" class="btn" onclick="playTurn()" style="width:950px; font-size:1.4em;">Lancer Jour 1</button>
-<button class="btn codex-tab-btn"    onclick="toggleCodex(true)">📖 CODEX</button>
-<button class="btn boutique-tab-btn" onclick="toggleBoutique(true)">💎 BOUTIQUE</button>
-
-<!-- ══════════════════════════════════════════
-     CODEX
-══════════════════════════════════════════ -->
-<div id="codex-overlay">
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--accent); padding-bottom:15px; margin-bottom:20px;">
-        <h1 style="margin:0; color:var(--accent);">CODEX</h1>
-        <button class="btn" onclick="toggleCodex(false)">FERMER ✖</button>
-    </div>
-
-    <div style="display:flex; gap:10px; margin-bottom:20px;">
-        <button class="btn" id="tab-objets" onclick="switchCodexTab('objets')" style="border-color:var(--accent); background:var(--accent); color:#000;">📦 OBJETS</button>
-        <button class="btn" id="tab-events" onclick="switchCodexTab('events')">🎲 EVENTS</button>
-    </div>
-
-    <div id="codex-objets-content">
-        <h3 style="color:#2ecc71;">★ CAPACITÉS : <span id="my-capas-list" style="color:#fff; font-size:0.8em;">Aucune</span></h3>
-        <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
-        <div id="codex-grid" class="cards-container"></div>
-    </div>
-
-    <div id="codex-events-content" style="display:none;">
-        <div id="events-grid"></div>
-    </div>
-</div>
-
-<!-- ══════════════════════════════════════════
-     COLLECTION D'OBJETS
-══════════════════════════════════════════ -->
-<div id="collection-overlay">
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--accent); padding-bottom:15px; margin-bottom:20px;">
-        <h1 style="margin:0; color:var(--accent);">📦 COLLECTION D'OBJETS</h1>
-        <button class="btn" onclick="closeCollection()">FERMER ✖</button>
-    </div>
-
-    <p style="color:#bbb; margin-bottom:20px; text-align:center;">
-        Sélectionne jusqu'à 3 objets pour commencer ta partie. Les cartes grisées n'ont pas encore été obtenues.
-    </p>
-
-    <div style="text-align:center; margin-bottom:20px;">
-        <span style="color:var(--accent); font-size:1.2em; font-weight:bold;">
-            Objets sélectionnés : <span id="collection-selected-count">0</span> / 3
-        </span>
-    </div>
-
-    <div id="collection-grid" class="cards-container" style="margin-bottom:30px;"></div>
-
-    <div style="text-align:center;">
-        <button class="btn" onclick="closeCollection()" style="font-size:1.2em; padding:15px 40px; border-color:var(--accent); color:var(--accent);">
-            SAUVEGARDER ET FERMER ✓
-        </button>
-    </div>
-</div>
-
-<!-- ══════════════════════════════════════════
-     SCRIPTS (ordre important)
-══════════════════════════════════════════ -->
+<!-- SCRIPTS -->
 <script src="data.js"></script>
 <script src="game.js"></script>
 <script src="events.js"></script>
 <script src="ui.js"></script>
 <script src="main.js"></script>
-<script src="boutique.html"></script>
 
 </body>
 </html>
